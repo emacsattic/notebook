@@ -863,6 +863,29 @@ Used for cells that have had an error state returned."
   :group 'notebook-faces)
 
 
+;;; Cleaning output.
+
+(defun nb-clean-output-buffer ()
+  "Erase all the output of all cells in the buffer."
+  (interactive)
+  (nb-clean-output-region (point-min) (point-max))
+  )
+;;
+(defun nb-clean-output-region (beg end)
+  "Send all of the cells in the region to the process."
+  (interactive "r")
+  (if (< end beg)
+      (let ((temp beg))			;Swap beg and end.
+	(setq beg end)
+	(setq end temp))
+    )
+  (save-excursion
+    (goto-char beg)
+    (while (re-search-forward nb-cell-regexp end t)
+      (delete-region (match-beginning 4) (match-end 4))
+      )
+    ))
+
 ;;; Interaction with sub-process.
 
 (defun nb-send-input-forward (position &optional arg)
@@ -893,6 +916,7 @@ Used for cells that have had an error state returned."
 ;;
 (defun nb-send-input-region (beg end)
   "Send all of the cells in the region to the process."
+  (interactive "r")
   (if (< end beg)
       (let ((temp beg))			;Swap beg and end.
 	(setq beg end)
@@ -903,6 +927,7 @@ Used for cells that have had an error state returned."
     (while (re-search-forward nb-cell-regexp end t)
       (nb-send-input (point))))
   )
+;;
 ;;
 (defun nb-send-input (position)
   "Send the input cell at or before POSITION.  point isn't moved.
