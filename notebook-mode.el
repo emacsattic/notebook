@@ -336,7 +336,7 @@ in the prompt, the input region, the output region of a cell, or not in
 a cell at all.
 "
   (interactive "d")
-  (let ((overlays (overlays-at (pos))) (type))
+  (let ((overlays (overlays-at pos)) (type))
     (while (and overlays (not type))
       (setq type (overlay-get (car overlays) 'cell-part))
       (setq overlays (cdr overlays)))
