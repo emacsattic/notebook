@@ -12,7 +12,6 @@
 
 (global-set-key [M-f4] 'nb-reload-modes) ; for debugging.
 (global-set-key [M-f3] 'debug-syntax-and-face) ; for debugging.
-(global-set-key [M-f7] 'nb-add-debug-buffer) ; for debugging.
 (global-set-key [M-f8] 'nb-find-cell-by-position) ; for debugging.
 (global-set-key [M-f9] 'open-message-buffer) ; for debugging.
 (global-set-key [M-f10] 'debug-syntax-and-face) ; for debugging.
@@ -127,13 +126,8 @@ instead."
         (goto-char (point-max))
         (insert string))))
 
-(defun nb-add-debug-buffer (name)
-  "Create a debug buffer for debugging input-output"
-  (interactive "Mbuffer name:")
-  (setq notebook-debug-input-buffer (get-buffer-create (concat name "-input")))
-  (setq notebook-debug-output-buffer (get-buffer-create (concat name "-output")))
-  )
-
+(setq notebook-debug-input-buffer  (get-buffer-create "input-debug"))
+(setq notebook-debug-output-buffer (get-buffer-create "output-debug"))
 (setq message-log-max 500)
 
 (add-hook 'font-lock-mode-hook
