@@ -1,20 +1,20 @@
-This is a sample Shell Notebook.  $Revision$
-	
+$Id$   -*- notebook-mode -*-
+This is a sample Shell Notebook.
+
 
 Some useful keys:  
-        f1 -- reload notebook.el
-        f2 -- turn mode off.
-        f3/4 -- debog on/off
-        M-tab -- next cell.
-        M-return -- Send input.
-        C-return -- send input, next cell.
+        M-tab -- go to next cell.
+        C-return -- Send input part of cell to shell.
+        M-return -- send input, and then go to next cell.
+        C-c C-r -- send all cells in region to shell.
+        C-c C-b -- send all cells in buffer to shell.
         C-c C-s -- start process.
         C-c C-c -- kill process.
-        M-n -- Create new cell.
-	C-c C-d -- Delete cell and text.
+        C-c C-n -- create a new cell.
+	C-c C-d -- Delete this cell.
 
 2> uptime  
-  2:32pm  up 28 min,  0 users,  load average: 0.29, 0.41, 0.68
+ 10:49pm  up  1:22,  0 users,  load average: 0.14, 0.18, 0.21
 
 3> sleep 10  
 
@@ -22,9 +22,11 @@ Some useful keys:
 
 
 7> /bin/ls  
-Documentation  mupad.el     RCS		 samp5-b.matlab  samp6.shell
-Makefile       notebook.el  README	 samp5.matlab	 samp.mu
-matlab.el      octave.el    samp4.shell  samp5.tex	 TODO
+COPYING        README			notebook-mode.el	 samp5-b.matlab
+Documentation  TODO			notebook.texi		 samp5.matlab
+INSTALL        debug-notebook.el	octave-notebook-mode.el  samp5.tex
+Makefile       matlab-notebook-mode.el	samp.mu			 samp6.shell
+RCS	       mupad-notebook-mode.el	samp4.shell		 version.texi
 
 
 
@@ -36,10 +38,12 @@ matlab.el      octave.el    samp4.shell  samp5.tex	 TODO
 37>     (no output yet)
 38>     (no output yet)
 35> ls  
-[00m[00mDocumentation[00m  [00mmupad.el[00m     [01;34mRCS[00m          [00msamp5-b.matlab[00m  [00msamp6.shell[00m
-[00mMakefile[00m       [00mnotebook.el[00m  [00mREADME[00m       [00msamp5.matlab[00m    [00msamp.mu[00m
-[00mmatlab.el[00m      [00moctave.el[00m    [00msamp4.shell[00m  [00msamp5.tex[00m       [00mTODO[00m
-[m
+COPYING        README			notebook-mode.el	 samp5-b.matlab
+Documentation  TODO			notebook.texi		 samp5.matlab
+INSTALL        debug-notebook.el	octave-notebook-mode.el  samp5.tex
+Makefile       matlab-notebook-mode.el	samp.mu			 samp6.shell
+RCS/	       mupad-notebook-mode.el	samp4.shell		 version.texi
+
 39>     (no output yet)
 
 

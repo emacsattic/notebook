@@ -1,3 +1,4 @@
+# $Id$
 # Edit the directories to show where you want things installed:
 
 prefix = /usr/local
@@ -7,12 +8,12 @@ lispdir = /usr/share/emacs/site-lisp/notebook
 VERSION = 1.2
 
 LISP = notebook-mode.el \
-	matlab-notebook-mode.el mupad-notebook-mode.el octave-notebook-mode.el
+	matlab-notebook-mode.el mupad-notebook-mode.el octave-notebook-mode.el \
 
 SAMPLES = samp4.shell samp5.matlab samp5-b.matlab samp6.shell 
 
 DISTFILES = $(LISP) $(SAMPLES) COPYING INSTALL Makefile notebook.info notebook.texi \
-	README TODO 
+	README TODO debug-notebook.el version.texi
 
 all: notebook.info
 
@@ -24,7 +25,6 @@ install: notebook.info
 
 version.texi: Makefile
 	@echo "@set VERSION $(VERSION)" >> version.texi
-
 
 notebook.info: notebook.texi version.texi
 	makeinfo $<
@@ -41,5 +41,6 @@ notebook-$(VERSION).tgz: $(DISTFILES)
 
 
 clean:
-	rm -fr notebook.dvi notebook.info $(distdir)
+	rm -rf notebook.dvi notebook.info $(distdir) 
+	rm -rf samp5.tex samp5.dvi samp5.log samp5.aux
 

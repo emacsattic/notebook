@@ -1,30 +1,52 @@
+$Id$
+
+This is a list of things that would be nice to do.  And a few bugs that I've
+been too lazy to fix.
+
+-----------
+I wrote special versions of kill and yank that check the new text for cell
+markers.  If text is entered in some other way, the cell markers are not found,
+and might not be in pairs.  This should be fixed.  Or there should be a clever
+work around.
+
+-----------
+Better documentation.  Corect spilling. Complete sentences.
+
+-----------
+Clean up code: use a derived mode.  Port to xemacs if possible.
+Question: should notebook be a derived mode of something, or should each other
+mode just be derived from another, with notebook features added.  Like matlab
+is just tex-mode with other stuff added.  
+
+-----------
+Verify that all variables are local that should be buffer local.
+
+-----------
+Figure out the difference between defvar and defconst.
+
+-----------
+Add a syntax table that gets turns \b and ^H into a non-whitespace character.
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; TODO
+;; Set up info line.
+
+Add this to docs:
 
 
-Notebook mode:
+To create a new cell, type ^C^N.  To enter a cell use M-Enter or
+C-Enter. Use M-Tab to move to the next cell. Use ^C^B to enter all of
+the buffer.  In matlab mode, use ^C^F to tex the buffer and ^C^V to
+run xdvi. 
 
-1) Set up regions that tell where input/output cells are.
-Regular Input cells:  (^LIn Beg 123^J ... ^LIn End 123^J)
-Regular Output cells: (^LOut Beg 123^J ... ^LOut End 123^J)
-	
-Data cell: (^Ldata beg 123^J ... ^Ldata end 123^J)
+I've added the following to my auto-mode-alist:
+ ("\\.mu$" . mupad-notebook-mode)
+ ("\\.matlab$" . matlab-notebook-mode)
+ ("\\.M$" . matlab-notebook-mode)
+ ("\\.shell$" . notebook-mode)
 
-2) Typing within a cell gets sent to program. (with cell address.)
 
-3) yanking/pasting/etc. gets sent to program.
-
-4) Set up cells which are arrays.
-
-5) separate program v.s. i/o vs. data section?
-
-6) Color code:
-	comments and text.
-	input cell (unentered).
-	input cell (entered, but not yet processed.)
-	input cell (entered, currently processing.)
-	input cell (entered and processed)
-	input cell (syntax error)
-	output cell (read only)
-	output cell (read/write)
+(Hardly worth a separate file, I know.  But I plan to write better docs later on.)
 
 7) Useful commands:	
 	Enter current input cell, and tab to next.
@@ -32,16 +54,7 @@ Data cell: (^Ldata beg 123^J ... ^Ldata end 123^J)
 	Create new input cell.
 	Create output cell at point, input at mark.
 	
-	
-	
-8) Output cells:  Usually, a new cell is created right after an input
-cell is created.  
 
 
 
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; TODO
-;; Set up a syntax and stuff like tex mode.
-;; Set up info line.

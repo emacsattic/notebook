@@ -1,6 +1,21 @@
 Basic Installation
 ==================
 
-Either copy *.el to a directory in your emacs path, or edit the make file and
+Either copy *.el to a directory in your emacs path (such
+as /usr/share/emacs/site-lisp), or edit the make file and 
 run make install.
 
+If you do it by hand, don't bother to copy over debug-notebook.el.
+
+
+I've added the following to my auto-mode-alist:
+ ("\\.mu$" . mupad-notebook-mode)
+ ("\\.matlab$" . matlab-notebook-mode)
+ ("\\.M$" . matlab-notebook-mode)
+ ("\\.shell$" . notebook-mode)
+
+And I've add this to my .emacs files:
+(autoload 'mupad-notebook-mode "mupad-notebook-mode" "Notebook for mupad" t)
+(autoload 'matlab-notebook-mode "matlab-notebook-mode" "Notebook for matlab" t)
+(autoload 'octave-notebook-mode "octave-notebook-mode" "Notebook for octave" t)
+(autoload 'notebook-mode "notebook-mode" "Notebook for matlab" t)

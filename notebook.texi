@@ -1,4 +1,5 @@
-\input texinfo
+\input texinfo @c  -*-texinfo-*-
+@c  $Id$
 @c %**start of header
 @setfilename notebook.info
 @settitle Notebook Mode Manual
@@ -12,40 +13,18 @@
 * Notebook Mode: (notebook).      Use emacs as front end for other programs
 @end direntry
 
-This is version @value{VERSION} of the Notebook Mode manual.
+This is edition $Revision$ of the Notebook Mode Manual for Notebook
+Mode version @value{VERSION}.
 
-Copyright 2002 Fred Gylys-Colwell.
-
-Permission is granted to make and distribute verbatim copies of this
-manual provided the copyright notice and this permission notice are
-preserved on all copies.
-     
-@ignore
-Permission is granted to process this file through TeX and print the
-results, provided the printed document carries a copying permission
-notice identical to this one except for the removal of this paragraph
-(this paragraph not being relevant to the printed manual).
-
-@end ignore
-Permission is granted to copy and distribute modified versions of this
-manual under the conditions for verbatim copying, provided also that the
-sections entitled ``Copying'' and ``GNU General Public License'' are
-included exactly as in the original, and provided that the entire
-resulting derived work is distributed under the terms of a permission
-notice identical to this one.
-     
-Permission is granted to copy and distribute translations of this manual
-into another language, under the above conditions for modified versions,
-except that this permission notice may be stated in a translation
-approved by the Free Software Foundation.
-
+Copyright @copyright{}  2002 Fred Gylys-Colwell.
 @end ifinfo
 
+@contents
 @titlepage
+@sp 10
 @title Notebook Mode Manual
 @subtitle Running Programs within a Notebook in Emacs
-@subtitle Edition @value{VERSION}
-@subtitle @value{UPDATED}
+@subtitle Version @value{VERSION} 
 @author Fred Gylys-Colwell
 @page
 @vskip 0pt plus 1filll
@@ -54,7 +33,7 @@ Copyright @copyright{} 2002 Fred Gylys-Colwell.
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
 preserved on all copies.
-     
+
 Permission is granted to copy and distribute modified versions of this
 manual under the conditions for verbatim copying, provided also that the
 sections entitled ``Copying'' and ``GNU General Public License'' are
@@ -69,37 +48,45 @@ approved by the Free Software Foundation.
 
 @end titlepage
 
-@ifinfo
+@ifnottex
 @node Top, Overview, (dir), (dir)
-@top Notebook Mode
+@end ifnottex
 
-Notebook Mode is a major mode for Emacs which allows the user to edit
-a notebook.
+@top Notebook Mode
 
 This is edition @value{VERSION} of the Notebook Mode Manual.
 
-@end ifinfo
+Notebook mode sets up a sub process that has well defined input and output
+responses.  Each notebook has a collection of cells, consisting of a prompt, an
+input region and an output region.  You tell Emacs to send a cell to the
+process (using C-Enter or M-Enter) and when the process responds, it will paste
+the output in to the output region.  You can then go back and edit other cells
+and re-enter them.  Between the cells is regular text, which you can do with as
+you wish. 
+
+This idea of a notebook with cells is popular with programs such as Matlab,
+Maple or Mathematica.  I use it with matlab, and then pipe the notebook through
+latex.  
+
+The basic version, @code{notebook-mode}, runs the shell @code{bash} as the
+subprocess.  But there are other modes for running other programs.
 
 @menu
 * Overview::                    What Notebook Mode is and how it can be used.
 
+Submodes
+* Matlab Mode::                 Running Matlab in a notebook.
+* Octave Mode::                 Running Octave in a notebook.
+* MuPad Mode::                  Running Mupad in a notebook.
 
 Indices
 
 * Concept Index::               Index of Notebook Mode Concepts.
-* Function Index::              Index of functions and variables of Notebook Mode.
 * Keystroke Index::             Index of key bindings in Notebook Mode.
 
-
-@detailmenu
- --- The Detailed Node Listing ---
-
-The Notebook Mode
-
-@end detailmenu
 @end menu
 
-@node Overview, Basic Concepts, Top, Top
+@node Overview, Matlab Mode, Top, Top
 @comment  node-name,  next,  previous,  up
 @chapter Overview of Notebook Mode
 @cindex overview of notebook-mode
@@ -115,40 +102,120 @@ you wish.
 
 This idea of a notebook with cells is popular with programs such as Matlab,
 Maple or Mathematica.  I use it with matlab, and then pipe the notebook through
-latex.  
+latex.
 
-
-To create a new cell, type ^C^N.  To enter a cell use M-Enter or
-C-Enter. Use M-Tab to move to the next cell. Use ^C^B to enter all of
-the buffer.  In matlab mode, use ^C^F to tex the buffer and ^C^V to
-run xdvi. 
-
-
-I've added the following to my auto-mode-alist:
+In order to use it automatically for specific files, I've added the
+following to my auto-mode-alist: 
 @lisp
  ("\\.mu$" . mupad-notebook-mode)
  ("\\.matlab$" . matlab-notebook-mode)
  ("\\.M$" . matlab-notebook-mode)
  ("\\.shell$" . notebook-mode)
-(add-to-list 'mmm-mode-ext-classes-alist
-             '(rpm-spec-mode "\\.spec\\'" rpm-sh))
 @end lisp
 
-@node Concept Index, Function Index, RPM, Top
+
+There are several commands you can use to manipulate cells:
+
+@table @kbd
+@item C-@key{RET} 
+@kindex @kbd{C-@key{RET}}
+Sends the cell at (or just before) point to the sub-process.  If the
+process is not running, it is started.  
+
+@item M-@key{TAB} 
+@kindex @kbd{M-@key{TAB}}
+Move point the the beginning of the next cell's input.  If there is no
+cell after point, a new cell is created.
+
+@item M-@key{RET} 
+@kindex @kbd{M-@key{RET}}
+First enter the current cell, and then move to the next cell. This is
+the same as typing @kbd{C-@key{RET} M-@key{TAB}}.
+
+@item C-c C-n
+@kindex @kbd{C-c C-n}
+Create a new cell at point.  If point is currently in a cell, a new
+cell is created on the next line.
+
+@item C-c C-r
+@kindex @kbd{C-c C-r}
+Send all cells in the current region to the process.  If the process
+is not running, it is started first.
+
+@item C-c C-b
+@kindex @kbd{C-c C-b}
+Send all cells in the buffer to the process.  If the process
+is not running, it is started first.
+
+@item C-c C-c
+@kindex @kbd{C-c C-c}
+Kill the process.
+
+@item C-c C-s
+@kindex @kbd{C-c C-s}
+Re-start the process. 
+
+@end table
+
+
+
+@node Matlab Mode, Octave Mode, Overview, Top
+@comment  node-name,  next,  previous,  up
+@chapter Running Matlab in a Notebook
+@cindex matlab
+@cindex matlab-mode
+
+
+This runs @code{matlab} as the proces instead of the @code{bash}.
+In addition to the commands available to a generic notebook, the
+following commands might also be useful.  These are really only useful
+if you want to embed output from matlab into a latex document.
+
+
+@table @kbd
+@item C-c C-f
+@kindex @kbd{C-c C-f}
+Generate a LaTeX file with the same name as this buffer, except the
+extension is changed to @code{.tex}.  The input cells are imbedded
+into special tex code that prints them with little formatting, and in
+the @code{tt} font.  If the prompt is @samp{>>}, then the cell is
+displayed verbatim, on a new line by itself.
+If the prompt is @samp{>}, then the cell displayed within the current text.
+
+@item C-c >
+@kindex @kbd{C-c >}
+Toggle the prompt style from  @samp{>>} to  @samp{>} and back again on
+the cell at point.  This is used when converting to a tex file to
+decide if the cell should be on a line by itself.
+
+@end table
+
+
+@node Octave Mode, MuPad Mode, Matlab Mode, Top
+@comment  node-name,  next,  previous,  up
+@chapter Running Octave in a Notebook
+@cindex octave
+@cindex octave-mode
+
+Note: this may be obsolete.  I haven't tested it recently.
+It uses the same interface as matlab-mode.
+
+@node MuPad Mode, Concept Index, Octave Mode, Top
+@comment  node-name,  next,  previous,  up
+@chapter Running MuPad in a Notebook
+@cindex mupad
+@cindex mupad-mode
+
+Note: this may be obsolete.  I haven't tested it recently.
+It uses the same interface as matlab-mode.
+
+@node Concept Index, Keystroke Index, MuPad Mode, Top
 @comment  node-name,  next,  previous,  up
 @chapter Concept Index
 
 @printindex cp
 
-
-@node Function Index, Keystroke Index, Concept Index, Top
-@comment  node-name,  next,  previous,  up
-@chapter Function and Variable Index
-
-@printindex fn
-
-
-@node Keystroke Index,  , Function Index, Top
+@node Keystroke Index,  , Concept Index, Top
 @comment  node-name,  next,  previous,  up
 @chapter Keystroke Index
 

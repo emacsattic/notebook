@@ -1,8 +1,10 @@
-% This is a sample Matlab Notebook.  $Revision$
+% This is a sample Matlab Notebook.  $Id$
 % It has some tex commands.
 	
 \documentclass{notebook}
 \begin{document}
+
+Type C-c C-f to run convert this to {\tt samp5.tex}, and then run latex on it. 
 
 
 Here is a matrix.
@@ -63,11 +65,11 @@ ans =
      4     3
 
 
-With: $ >  z = 4+3  
+Within math delimeters: $ >  z = 4+3  
 z =
      7
 $
-and without >  z = 4+3  
+and without math delimeters >  z = 4+3  
 z =
      7
 (end)
@@ -77,13 +79,6 @@ With dollar signs $> [4 3 sin(3)]  
 ans =
     4.0000    3.0000    0.1411
 $
-
-% END  OF  NOTEBOOK
-
-Cell's shouldn't be inserted after this point.
-
-
-
 
 
 

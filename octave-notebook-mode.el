@@ -1,4 +1,4 @@
-;; octave.el  $Revision$
+;; $Id$
 ;; Set up a notebook mode for octave.
 
 
@@ -71,25 +71,7 @@ See documentation for tex-mode for other commands."
 	  (concat ws "function"		; the keyword function, 
 		  "[^=]*=" ws		; some variables and an equal sign
 		  name))		; and then the name.
-;;     (setq nb-end-of-notebook-regexp	; Don't put cells after this:
-;; 	  (concat
-;; 	   "\n?\\("			; A new line, followed by either
-;; 	   "%" ws "end" ws
-;; 	   "of" ws "notebook"		; end of notebook comment,
-;; 	   "\\|"			;or
-;; 	   (regexp-quote tex-trailer)	; the tex trailer,
-;; 	   "\\)"
-;; 	   ))
     ))
-
-;; (defun nb-set-end-of-notebook (pos)
-;;   "Set the end of the notebook to be POS."
-;;   (interactive "d")
-;;   (save-excursion
-;;     (goto-char pos)
-;;     (insert "\n\n% END OF NOTEBOOK\n\n")
-;;     (nb-find-end-of-notebook)
-;;     ))
 
 
 

@@ -1,4 +1,4 @@
-;; mupad.el  $Revision$
+;; $Id$
 ;; Set up a notebook mode for mupad.
 
 
@@ -68,28 +68,8 @@ See documentation for tex-mode for other commands."
 	  (concat "\"Begin" ws name ws name "\""
 		  "\\([^\f]*\\)" ws		;Body of output
 		  "\"End \\2\"" ))
-    ;; DEPRECATED
-;;     (setq nb-end-of-notebook-regexp	; Don't put cells after this:
-;; 	  (concat
-;; 	   "\n?\\("			; A new line, followed by either
-;; 	   "%" ws "end" ws
-;; 	   "of" ws "notebook"		; end of notebook comment,
-;; 	   "\\|"			;or
-;; 	   (regexp-quote tex-trailer)	; the tex trailer,
-;; 	   "\\)"
-;; 	   ))
     )
   )
-
-;; (defun nb-set-end-of-notebook (pos)
-;;   "Set the end of the notebook to be POS."
-;;   (interactive "d")
-;;   (save-excursion
-;;     (goto-char pos)
-;;     (insert "\n\n% END OF NOTEBOOK\n\n")
-;;     (nb-find-end-of-notebook)
-;;     ))
-;;
 
 
 (defconst mupad-notebook-adjust-input-string
@@ -227,9 +207,6 @@ process will be started, even if an old one already exists.  "
 (define-key mupad-notebook-mode-map
   [menu-bar tex tex-file]
   '("Run TeX on Notebook" . tex-mupad-file))
-;; (define-key mupad-notebook-mode-map
-;;   [menu-bar notebook nb-set-end-of-notebook ]
-;;   '("Set End of Notebook" . nb-set-end-of-notebook))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Convert to TeX and run TeX on the file:

@@ -1,4 +1,4 @@
-;; notebook.el  $Revision$
+;; $Id$
 ;; Set up a notebook mode.  
 
 (provide 'notebook-mode)
@@ -101,10 +101,6 @@ The third set should match the useful part of the output.  ")
   "This is the major mode for a notebook."
   (interactive)
   (scratch "Running notebook mode.\n")
-  (setq DEBUG-OLD-MODE major-mode)
-  (setq DEBUG-OLD-MODE-NAME mode-name)
-  (scratch (format "Old mode was %s with name %s.\n"
-		   DEBUG-OLD-MODE DEBUG-OLD-MODE-NAME))
   (put 'funney-mode 'mode-class 'special) ; This mode uses special text.
   ;; Set up local variables.
   (setq major-mode 'notebook-mode)
@@ -397,38 +393,85 @@ is created on the following line."
     (scratch (format "Set color for %s (status = %s)\n"
 		     (nb-cell-name cell) status))
     (overlay-put (nb-cell-input-overlay cell)
-		 'face 'input-face)
+		 'face 'notebook-input-face)
     (overlay-put (nb-cell-output-overlay cell)
-		 'face 'output-face)
+		 'face 'notebook-output-face)
     (overlay-put (nb-cell-prompt-overlay cell)
 		 'face
-		 (cond ((equal status 'entered)  'entered-face)
-		       ((equal status 'unentered)  'unentered-face)
-		       ((equal status 'processed)  'processed-face)
-		       ((equal status 'error)  'error-face)
+		 (cond ((equal status 'entered)  'notebook-entered-face)
+		       ((equal status 'unentered)  'notebook-unentered-face)
+		       ((equal status 'processed)  'notebook-processed-face)
+		       ((equal status 'error)  'notebook-error-face)
 		       ))
     ))
 
-(make-face 'input-face)
-(make-face 'output-face)
-(make-face 'entered-face)
-(make-face 'unentered-face)
-(make-face 'processed-face)
-(make-face 'error-face)
+(defgroup notebook-faces nil
+  "Faces for notebook mode."
+  :group 'faces)
 
-(set-face-foreground 'entered-face "yellow")
-(set-face-background 'entered-face "light green")
-(set-face-foreground 'unentered-face "light green")
-(set-face-background 'unentered-face "dark orange")
-(set-face-foreground 'processed-face "light green")
-(set-face-background 'processed-face "dark green")
-(set-face-foreground 'error-face "white")
-(set-face-background 'error-face "red")
-(set-face-foreground 'input-face "white")
-(set-face-background 'input-face "dark blue")
-(set-face-foreground 'output-face "cyan")
-(set-face-background 'output-face "black")
 
+(defface notebook-input-face
+  '((((type tty) (class color)) (:background "blue"))
+    (((class color) (background light)) (:background "light blue"))
+    (((class color) (background dark))  (:background "dark blue"))
+    )
+  "Face for the input region of a cell in notebook mode."
+  :group 'notebook-faces)
+
+
+(defface notebook-output-face
+  '((((type tty) (class color)) (:foreground "cyan"))
+    (((class color) (background light)) (:foreground "dark cyan"))
+    (((class color) (background dark)) (:foreground "cyan"))
+    )
+  "Face for the output region of a cell in notebook mode."
+  :group 'notebook-faces)
+
+(defface notebook-unentered-face
+  '((((type tty) (class color)) (:foreground "orange"))
+    (((class color) (background light))
+     (:foreground "dark green" :background "light orange"))
+    (((class color) (background dark))
+     (:foreground "light green" :background "dark orange"))
+    )
+  "Face for the prompt region of a cell in notebook mode.
+Used for cells that have not yet been entered."
+  :group 'notebook-faces)
+
+(defface notebook-entered-face
+  '((((type tty) (class color)) (:foreground "yellow"))
+    (((class color) (background light))
+     (:foreground "white"  :background "dark green"))
+    (((class color) (background dark))
+     (:foreground "black"  :background "light green"))
+    )
+  "Face for the prompt region of a cell in notebook mode.
+Used for cells that have been entered, but had no output yet."
+  :group 'notebook-faces)
+
+(defface notebook-processed-face
+  '((((type tty) (class color)) (:foreground "green"))
+    (((class color) (background light))
+     (:foreground "dark green"  :background "yellow"))
+    (((class color) (background dark))
+     (:foreground "light green"  :background "dark green"))
+    )
+  "Face for the prompt region of a cell in notebook mode.
+Used for cells that have been processed."
+  :group 'notebook-faces)
+
+(defface notebook-error-face
+  '((((type tty) (class color)) (:foreground "red"))
+    (((class color) (background light))
+     (:foreground "white"  :background "red"))
+    (((class color) (background dark))
+     (:foreground "white"  :background "red"))
+    )
+  "Face for the prompt region of a cell in notebook mode.
+Used for cells that have had an error state returned."
+  :group 'notebook-faces)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Movement:
 
@@ -503,9 +546,6 @@ one is created."
 	    (not (equal 'run (process-status nb-process))) )
 	(funcall nb-start-process t))
     (let ( (string) (cell (nb-find-cell-by-position position nil)))
-      ;;(if (not cell)
-	  ;;; PENDING -- default is now to do nothing when
-	  ;;; (error (format "%d is not before an I/O cell." position))
       (if cell
 	  (progn
 	    (nb-set-cell-status cell 'entered)
@@ -814,84 +854,10 @@ currently running process. (This doesn't work for the shell notebook.)"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; DEBUGGING COMMANDS:
 
+;; Other debugging commands are in debug-notebook.el
 (defun scratch (string)
   (if debug-on-error 
       (save-excursion
         (set-buffer "*scratch*")
         (goto-char (point-max))
         (insert string))))
-(defun turn-debug-on () 
-  (interactive)
-  (print (format  "Debug was:%s is now on" debug-on-error))
-  (setq debug-on-error t))
-(defun turn-debug-off () 
-  (interactive) 
-  (print (format  "Debug was:%s is now off" debug-on-error))
-  (setq debug-on-error nil))
-;;;(global-set-key [f3] 'turn-debug-on)
-;;;(global-set-key [f4] 'turn-debug-off)
-
-;;;(global-set-key  [f1] 'nb-redo-notebook-mode) ; for debugging.
-;;;(global-set-key [f2] 'nb-turn-off-mode) ; for debugging.
-(defun nb-redo-notebook-mode ()
-  "Reload this file and convert to notbook mode."
-  (interactive)
-  (nb-turn-off-mode)
-  (save-excursion
-    (set-buffer (find-file-noselect "~/source/emacs/notebook/notebook.el"))
-    (eval-buffer))
-  (notebook-mode)
-  )
-
-(defun kill-all-overlays (list)
-  (if list
-      (progn 
-	(delete-overlay (car list))
-	(kill-all-overlays (cdr list)))))
-
-(defun nb-turn-off-mode ()
-  "turn off this file and convert to notbook mode."
-  (interactive)
-  (setq inhibit-read-only t)
-  (setq buffer-display-table nil) 
-  (remove-text-properties (point-min) (point-max) (list 'read-only t))
-  (setq inhibit-read-only nil)
-  (kill-all-overlays (car (overlay-lists)))
-  (kill-all-overlays (cdr (overlay-lists)))
-  (nb-kill-process)
-  )
-
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-(let ((cell (list 'name 'status 'begin 'prompt 'input 'output)) )
-  (scratch "Check that the following generate a real cell.\n")
-  (scratch (format
-	    "name %s, status %s, begin %s, prompt %s, input %s output %s\n"
-	    (nb-cell-name cell)
-	    (nb-cell-status cell)
-	    (nb-cell-begin cell)
-	    (nb-cell-prompt-overlay cell)
-	    (nb-cell-input-overlay cell)
-	    (nb-cell-output-overlay cell)))
-  (nb-set-cell-status cell 'new-status)
-  (scratch (format
-	    "name %s, status %s, begin %s, prompt %s, input %s output %s\n"
-	    (nb-cell-name cell)
-	    (nb-cell-status cell)
-	    (nb-cell-begin cell)
-	    (nb-cell-prompt-overlay cell)
-	    (nb-cell-input-overlay cell)
-	    (nb-cell-output-overlay cell)))
-  )
-
-;; TODO
-;; Change the following so they don't redo each time the file is run.
-;; Check that almost all variables are local.
-;; Convert defconst to defvar, so that they can be changed.
-
-;; Add a syntax table that gets turns \b into a non-whitespace character.

@@ -1,6 +1,7 @@
+;; $Id$
 Emacs Notebook mode.
 by Fred Gylys-Colwell  (Copyright 1997, 2002).
-These files are under the GNU Public License (GPL).  See the file Copying.
+These files are under the GNU Public License (GPL).  See the file COPYING.
 
 Notebook mode sets up a sub process that has well defined input and output
 responses.  Each notebook has a collection of cells, consisting of a prompt, an
@@ -28,4 +29,6 @@ I've added the following to my auto-mode-alist:
  ("\\.shell$" . notebook-mode)
 
 
- There are some sample files in this directory.
+There are some sample files in this directory.
+
+
