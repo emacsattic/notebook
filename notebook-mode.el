@@ -51,8 +51,6 @@
 (defvar notebook-output-font-lock-hook nil
   "Run this before initializing font lock for the output region.")
 
-
-
 
 ;;; Variables that are used internally, or can be set by various notebook modes.
 
@@ -150,6 +148,7 @@ currently running process. (This doesn't work for the shell notebook.)"
   )
 (make-variable-buffer-local 'nb-start-process)
 
+;;
 (defun nb-find-process (name)
   "Find a process named NAME that is already running. If there is none,
 return nil."
@@ -243,7 +242,7 @@ used for the input. A form feed works nicely as a specail marker.
 (defun nb-cell-output-overlay (cell) (nth 5 cell))
 ;;
 (defun nb-set-cell-status (cell status)
-  "Set the cells status, and change the prompts color, too."
+  "Set the cells status, and change the prompt's color, too."
   (setcar (nthcdr 1 cell) status)
   (overlay-put (nb-cell-prompt-overlay cell)
 	       'face
@@ -958,7 +957,12 @@ otherwise the output is ignored.
 	  (if (equal cell nil)
 	      (if (equal name "error") (message string)) ;Put error as a message. 
 	    ;; Otherwise, insert output.
-	    (nb-set-cell-status cell 'processed)
+	    ;; First, change the status, if it was entered before.
+	    ;; This doesn't change the status if it was an error or unentered.
+	    ;; This way, if a cell is entered, then it is changed, then its output
+	    ;; is returned, the status will still be unentered.
+	    (if (equal (nb-cell-status cell) 'entered)
+		(nb-set-cell-status cell 'processed))
 	    (goto-char (nb-cell-begin cell))
 	    (if (not (looking-at nb-cell-regexp))
 		(error "Cell %s doesn't look like an I/O cell." name))
