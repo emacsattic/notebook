@@ -33,9 +33,10 @@
 
 ;;; Variables that are user configurable, or user readable.
 
+;; Note to myself: change these here and in Makefile -- FDGC
 (defconst notebook-mode-version 2
   "The version number of this copy of notebook mode.")
-(defconst notebook-mode-version-minor 0
+(defconst notebook-mode-version-minor 1
   "The minor version number of this copy of notebook mode.")
 
 ;;

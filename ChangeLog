@@ -1,3 +1,10 @@
+2003-06-03  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* notebook-mode.el: oops. let's change that name to "clear-output"...
+
+	* notebook-mode.el (nb-clean-output-region, nb-clean-output-buffer):
+	Added two new functions that erase the old output of cells.
+
 2003-06-02  Fred Gylys-Colwell  <fredgc@member.ams.org>
 
 	* notebook-mode.el (nb-clean-output-region, nb-clean-output-buffer):

@@ -9,7 +9,8 @@ lispdir = $(HOME)/Emacs
 infodir = $(HOME)/Emacs/info
 
 # This should change after an upload.
-VERSION = 2.0
+# Note to myself: change these here and in notebook-mode.el -- FDGC
+VERSION = 2.1
 
 LISP = notebook-mode.el \
 	matlab-notebook-mode.el mupad-notebook-mode.el octave-notebook-mode.el \
