@@ -1,0 +1,166 @@
+\input texinfo
+@c %**start of header
+@setfilename notebook.info
+@settitle Notebook Mode Manual
+@c %**end of header
+@syncodeindex vr fn
+
+@include version.texi
+
+@ifinfo
+@direntry
+* Notebook Mode: (notebook).      Use emacs as front end for other programs
+@end direntry
+
+This is version @value{VERSION} of the Notebook Mode manual.
+
+Copyright 2002 Fred Gylys-Colwell.
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+     
+@ignore
+Permission is granted to process this file through TeX and print the
+results, provided the printed document carries a copying permission
+notice identical to this one except for the removal of this paragraph
+(this paragraph not being relevant to the printed manual).
+
+@end ignore
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that the
+sections entitled ``Copying'' and ``GNU General Public License'' are
+included exactly as in the original, and provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+     
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation
+approved by the Free Software Foundation.
+
+@end ifinfo
+
+@titlepage
+@title Notebook Mode Manual
+@subtitle Running Programs within a Notebook in Emacs
+@subtitle Edition @value{VERSION}
+@subtitle @value{UPDATED}
+@author Fred Gylys-Colwell
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 2002 Fred Gylys-Colwell.
+
+Permission is granted to make and distribute verbatim copies of this
+manual provided the copyright notice and this permission notice are
+preserved on all copies.
+     
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided also that the
+sections entitled ``Copying'' and ``GNU General Public License'' are
+included exactly as in the original, and provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+     
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation
+approved by the Free Software Foundation.
+
+@end titlepage
+
+@ifinfo
+@node Top, Overview, (dir), (dir)
+@top Notebook Mode
+
+Notebook Mode is a major mode for Emacs which allows the user to edit
+a notebook.
+
+This is edition @value{VERSION} of the Notebook Mode Manual.
+
+@end ifinfo
+
+@menu
+* Overview::                    What Notebook Mode is and how it can be used.
+
+
+Indices
+
+* Concept Index::               Index of Notebook Mode Concepts.
+* Function Index::              Index of functions and variables of Notebook Mode.
+* Keystroke Index::             Index of key bindings in Notebook Mode.
+
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+The Notebook Mode
+
+@end detailmenu
+@end menu
+
+@node Overview, Basic Concepts, Top, Top
+@comment  node-name,  next,  previous,  up
+@chapter Overview of Notebook Mode
+@cindex overview of notebook-mode
+@cindex notebook-mode, overview of
+
+Notebook mode sets up a sub process that has well defined input and output
+responses.  Each notebook has a collection of cells, consisting of a prompt, an
+input region and an output region.  You tell Emacs to send a cell to the
+process (using C-Enter or M-Enter) and when the process responds, it will paste
+the output in to the output region.  You can then go back and edit other cells
+and re-enter them.  Between the cells is regular text, which you can do with as
+you wish. 
+
+This idea of a notebook with cells is popular with programs such as Matlab,
+Maple or Mathematica.  I use it with matlab, and then pipe the notebook through
+latex.  
+
+
+To create a new cell, type ^C^N.  To enter a cell use M-Enter or
+C-Enter. Use M-Tab to move to the next cell. Use ^C^B to enter all of
+the buffer.  In matlab mode, use ^C^F to tex the buffer and ^C^V to
+run xdvi. 
+
+
+I've added the following to my auto-mode-alist:
+@lisp
+ ("\\.mu$" . mupad-notebook-mode)
+ ("\\.matlab$" . matlab-notebook-mode)
+ ("\\.M$" . matlab-notebook-mode)
+ ("\\.shell$" . notebook-mode)
+(add-to-list 'mmm-mode-ext-classes-alist
+             '(rpm-spec-mode "\\.spec\\'" rpm-sh))
+@end lisp
+
+@node Concept Index, Function Index, RPM, Top
+@comment  node-name,  next,  previous,  up
+@chapter Concept Index
+
+@printindex cp
+
+
+@node Function Index, Keystroke Index, Concept Index, Top
+@comment  node-name,  next,  previous,  up
+@chapter Function and Variable Index
+
+@printindex fn
+
+
+@node Keystroke Index,  , Function Index, Top
+@comment  node-name,  next,  previous,  up
+@chapter Keystroke Index
+
+@printindex ky
+
+
+@bye
+
+@c etc...
+
+@c Local Variables:
+@c mode: texinfo
+@c mode: font-lock
+@c mode: outline-minor
+@c End:

@@ -1,0 +1,46 @@
+This is a sample Shell Notebook.  $Revision$
+	
+
+Some useful keys:  
+        f1 -- reload notebook.el
+        f2 -- turn mode off.
+        f3/4 -- debog on/off
+        M-tab -- next cell.
+        M-return -- Send input.
+        C-return -- send input, next cell.
+        C-c C-s -- start process.
+        C-c C-c -- kill process.
+        M-n -- Create new cell.
+	C-c C-d -- Delete cell and text.
+
+2> uptime  
+  2:32pm  up 28 min,  0 users,  load average: 0.29, 0.41, 0.68
+
+3> sleep 10  
+
+4> who  
+
+
+7> /bin/ls  
+Documentation  mupad.el     RCS		 samp5-b.matlab  samp6.shell
+Makefile       notebook.el  README	 samp5.matlab	 samp.mu
+matlab.el      octave.el    samp4.shell  samp5.tex	 TODO
+
+
+
+
+36>     (no output yet)
+1>     (no output yet)
+5>     (no output yet)
+6>     (no output yet)
+37>     (no output yet)
+38>     (no output yet)
+35> ls  
+[00m[00mDocumentation[00m  [00mmupad.el[00m     [01;34mRCS[00m          [00msamp5-b.matlab[00m  [00msamp6.shell[00m
+[00mMakefile[00m       [00mnotebook.el[00m  [00mREADME[00m       [00msamp5.matlab[00m    [00msamp.mu[00m
+[00mmatlab.el[00m      [00moctave.el[00m    [00msamp4.shell[00m  [00msamp5.tex[00m       [00mTODO[00m
+[m
+39>     (no output yet)
+
+
+

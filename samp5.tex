@@ -1,0 +1,90 @@
+% This is a sample Matlab Notebook.  $Revision$
+% It has some tex commands.
+	
+\documentclass{notebook}
+\begin{document}
+
+
+Here is a matrix.
+\begin{verbatim}>>   a = [1 2 3; 2 1 5; -4 -1 3]  
+a =
+     1     2     3
+     2     1     5
+    -4    -1     3
+\end{verbatim} It's inverse is defined here:
+\begin{verbatim}>>  inv(a)  
+ans =
+   -0.2105    0.2368   -0.1842
+    0.6842   -0.3947   -0.0263
+   -0.0526    0.1842    0.0789
+\end{verbatim}
+Next, we will try some plotting.  Here is $\sin(t)$ for $0 < t < pi$.
+\begin{verbatim}>>  t = [0:.01:pi];
+plot(t, sin(t))\end{verbatim}
+This is an example of a function in matlab.
+\begin{verbatim}>>  function y = junk(x)
+y = 3 * x .^ 2 - x ;(function junk.m saved)\end{verbatim}
+$x=1^4$
+\begin{verbatim}>>  plot(t, junk(t)) 
+>>  eig(a) 
+ans =
+  -1.3352          
+   3.1676 + 4.2925i
+   3.1676 - 4.2925i
+\end{verbatim}
+Here is some concatinated:
+\begin{verbatim}>> a = 1  
+a =
+     1
+
+>> b = 2  
+b =
+     2
+\end{verbatim}
+
+Here is some short
+{ \tt  ehll = 123.2314234   \, (
+(no output yet))} 
+
+ or
+${ \tt z_2 = 4.55^3;  } $ or 
+${ \tt  z_4 + z_2   \, (
+ans =
+   97.3364
+)}  $
+
+Here is:
+{ \tt  [4  3]   \, (
+ans =
+     4     3
+)} 
+Or { \tt  a = [4  3]   \, (
+ans =
+     4     3
+)} 
+
+With: $ { \tt  z = 4+3   \, (
+z =
+     7
+)} $
+and without { \tt  z = 4+3   \, (
+z =
+     7
+)} (end)
+
+
+With dollar signs ${ \tt [4 3 sin(3)]   \, (
+ans =
+    4.0000    3.0000    0.1411
+)} $
+
+% END  OF  NOTEBOOK
+
+Cell's shouldn't be inserted after this point.
+
+
+
+
+
+
+\end{document}

@@ -1,0 +1,6 @@
+Basic Installation
+==================
+
+Either copy *.el to a directory in your emacs path, or edit the make file and
+run make install.
+

@@ -1,0 +1,31 @@
+Emacs Notebook mode.
+by Fred Gylys-Colwell  (Copyright 1997, 2002).
+These files are under the GNU Public License (GPL).  See the file Copying.
+
+Notebook mode sets up a sub process that has well defined input and output
+responses.  Each notebook has a collection of cells, consisting of a prompt, an
+input region and an output region.  You tell Emacs to send a cell to the
+process (using C-Enter or M-Enter) and when the process responds, it will paste
+the output in to the output region.  You can then go back and edit other cells
+and re-enter them.  Between the cells is regular text, which you can do with as
+you wish. 
+
+This idea of a notebook with cells is popular with programs such as Matlab,
+Maple or Mathematica.  I use it with matlab, and then pipe the notebook through
+latex.  
+
+
+To create a new cell, type ^C^N.  To enter a cell use M-Enter or
+C-Enter. Use M-Tab to move to the next cell. Use ^C^B to enter all of
+the buffer.  In matlab mode, use ^C^F to tex the buffer and ^C^V to
+run xdvi. 
+
+
+I've added the following to my auto-mode-alist:
+ ("\\.mu$" . mupad-notebook-mode)
+ ("\\.matlab$" . matlab-notebook-mode)
+ ("\\.M$" . matlab-notebook-mode)
+ ("\\.shell$" . notebook-mode)
+
+
+ There are some sample files in this directory.
