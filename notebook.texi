@@ -96,7 +96,7 @@ Indices
 @cindex overview of notebook-mode
 @cindex notebook-mode, overview of
 
-Notebook mode sets up a sub process that has well defined input and output
+Notebook mode sets up a sub process that has well defined discrete input and output
 responses.  Each notebook has a collection of cells, consisting of a prompt, an
 input region and an output region.  You tell Emacs to send a cell to the
 process (using C-Enter or M-Enter) and when the process responds, it will paste
@@ -159,6 +159,10 @@ Kill the process.
 @item C-c C-s
 @kindex @kbd{C-c C-s} nb-start-process
 Re-start the process. 
+
+@item C-c -
+@kindex @kbd{C-c -} nb-clear-output-buffer
+Clears the output from all of the cells in the buffer.
 
 @item C-c C-f
 @kindex @kbd{C-c C-f} notebook-to-????
@@ -245,7 +249,7 @@ It uses the same interface as matlab-mode.
 @cindex create new mode
 
 In order to create your own subprocess, there are several variables
-that need to be set.  See the code for matlab-notebook-mode for an
+that need to be set.  See the code for octave-notebook-mode for an
 example.
 
 The variable @code{nb-adjust-input-string} should be a function that
