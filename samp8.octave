@@ -1,7 +1,7 @@
 % This is a sample Octave Notebook.
 %   $Id$
 % It has some TeX commands.
-	
+        
 \documentclass{article}
 \begin{document}
 
@@ -14,7 +14,7 @@ Here is a matrix.
    2   1   5
   -4  -1   3  
 It's inverse is defined here:
->> inv(a)  
+>>  inv(a)  
  ans =
   -0.210526   0.236842  -0.184211
    0.684211  -0.394737  -0.026316
