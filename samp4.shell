@@ -1,6 +1,8 @@
-$Id$   -*- notebook -*-
+$Id$  
 This is a sample Shell Notebook.
 
+If you see a bunch of ^H characters below, you should have emacs load the
+notebook-mode.el file, and then change modes using "M-x notebook-mode".
 
 Some useful keys:  
         M-tab -- go to next cell.
@@ -13,76 +15,91 @@ Some useful keys:
         C-c C-n -- create a new cell.
 	C-c C-d -- Delete this cell.
 
-2> uptime
+>>date  
+Wed Feb 19 21:34:12 PST 2003
 
- 10:15pm  up  1:33,  0 users,  load average: 0.08, 0.17, 0.45
+
+>> uptime
 
-3> sleep 3  
-4> uname -a
-Linux goose.ktb.net 2.4.18 #3 Sun Jun 9 01:16:31 PDT 2002 i586 unknown
+  9:34pm  up 15 min,  0 users,  load average: 2.53, 2.26, 1.40
+
+>> sleep 3  
+>> uname -a
+Linux goose.ktb.net 2.4.18 #8 Sat Jan 18 21:58:24 PST 2003 i586 i586 i386 GNU/Linux
 
 This is some text.
-7>
+>>
 /bin/ls  
-ChangeLog		 notebook-1.0.tgz	  README	  samp8.log
-COPYING			 notebook-1.1.tgz	  samp4.sh	  samp8.octave
-CVS			 notebook-1.2.tgz	  samp4.shell	  samp8.tex
-debug-notebook.el	 notebook-1.3.tgz	  samp5-b.matlab  samp.mu
-INSTALL			 notebook.html		  samp5.matlab	  TODO
-junk.m			 notebook.info		  samp6.shell	  version.texi
-Makefile		 notebook-mode.el	  samp7.fs
-matlab-notebook-mode.el  notebook.texi		  samp8.aux
-mupad-notebook-mode.el	 octave-notebook-mode.el  samp8.dvi
+auto			 notebook-1.1.tgz	  samp6.shell	  x-plain.shell
+ChangeLog		 notebook-1.2.tgz	  samp7.fs	  x-tex2.aux
+color.shell		 notebook-1.3.tgz	  samp8.aux	  x-tex2.dvi
+COPYING			 notebook.html		  samp8.dvi	  x-tex2.log
+CVS			 notebook.info		  samp8.log	  x-tex2.shell
+debug-notebook.el	 notebook-mode.el	  samp8.octave	  x-tex2.tex
+font-lock-debug.el	 notebook.texi		  samp8.tex	  x-tex.aux
+fontlock-notebook.el	 NOTEs			  samp.mu	  x-tex.dvi
+INSTALL			 octave-notebook-mode.el  TODO		  x-tex.log
+junk.m			 old-notebook-mode.el	  version.texi	  x-tex.shell
+Makefile		 README			  x-html.html	  x-tex.tex
+matlab-notebook-mode.el  samp4.sh		  x-html.log	  z.shell
+mmm-stuff.el		 samp4.shell		  x-html.shell
+mupad-notebook-mode.el	 samp5-b.matlab		  x-plain2.shell
+notebook-1.0.tgz	 samp5.matlab		  x-plain2.txt
 
 
 
 
-36>  echo "one"
+>>  echo "one"
 uptime
 echo "hello" 
 one
- 10:15pm  up  1:33,  0 users,  load average: 0.08, 0.17, 0.45
+ 11:19pm  up  2:09,  0 users,  load average: 0.49, 0.37, 0.28
 hello
 
-18>  
-9> dog="this is some text"
+>>  
+>> dog="this is some text"
+# comment.
 echo this is dog: $dog
 
 
 this is dog: this is some text
 
-10> echo $dog  
+>> echo $dog  
 this is some text
 
-1>  dog  
+>>  dog  
 bash: dog: command not found
 
 
-35> ls  
-ChangeLog		 notebook-1.0.tgz	  README	  samp8.log
-COPYING			 notebook-1.1.tgz	  samp4.sh	  samp8.octave
-CVS			 notebook-1.2.tgz	  samp4.shell	  samp8.tex
-debug-notebook.el	 notebook-1.3.tgz	  samp5-b.matlab  samp.mu
-INSTALL			 notebook.html		  samp5.matlab	  TODO
-junk.m			 notebook.info		  samp6.shell	  version.texi
-Makefile		 notebook-mode.el	  samp7.fs
-matlab-notebook-mode.el  notebook.texi		  samp8.aux
-mupad-notebook-mode.el	 octave-notebook-mode.el  samp8.dvi
+>> ls  
+auto			 notebook-1.1.tgz	  samp6.shell	  x-plain.shell
+ChangeLog		 notebook-1.2.tgz	  samp7.fs	  x-tex2.aux
+color.shell		 notebook-1.3.tgz	  samp8.aux	  x-tex2.dvi
+COPYING			 notebook.html		  samp8.dvi	  x-tex2.log
+CVS			 notebook.info		  samp8.log	  x-tex2.shell
+debug-notebook.el	 notebook-mode.el	  samp8.octave	  x-tex2.tex
+font-lock-debug.el	 notebook.texi		  samp8.tex	  x-tex.aux
+fontlock-notebook.el	 NOTEs			  samp.mu	  x-tex.dvi
+INSTALL			 octave-notebook-mode.el  TODO		  x-tex.log
+junk.m			 old-notebook-mode.el	  version.texi	  x-tex.shell
+Makefile		 README			  x-html.html	  x-tex.tex
+matlab-notebook-mode.el  samp4.sh		  x-html.log	  z.shell
+mmm-stuff.el		 samp4.shell		  x-html.shell
+mupad-notebook-mode.el	 samp5-b.matlab		  x-plain2.shell
+notebook-1.0.tgz	 samp5.matlab		  x-plain2.txt
 
-11>echo $PS2  
+>>echo $PS2  
 >
 
-13>   
-15>date  
-Mon Oct 28 22:15:27 PST 2002
- 17>    16>   14> 
-8>  
-5>   another 6>  
-12> echo $TERM 
+>>   
+>>date  
+Tue Feb 18 23:19:37 PST 2003
+ >>    >>   >> 
+>>  
+>>   another >>  
+>> echo $TERM 
 unknown
 
-
-20>    (no output yet)
 
 
 

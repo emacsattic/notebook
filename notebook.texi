@@ -28,7 +28,7 @@ Copyright @copyright{}  2002 Fred Gylys-Colwell.
 @author Fred Gylys-Colwell
 @page
 @vskip 0pt plus 1filll
-Copyright @copyright{} 2002 Fred Gylys-Colwell.
+Copyright @copyright{} 2003 Fred Gylys-Colwell.
 
 Permission is granted to make and distribute verbatim copies of this
 manual provided the copyright notice and this permission notice are
@@ -74,6 +74,7 @@ subprocess.  But there are other modes for running other programs.
 
 @menu
 * Overview::                    What Notebook Mode is and how it can be used.
+* New::                          What's new in version @value{VERSION}.
 
 Submodes
 * Matlab Mode::                 Running Matlab in a notebook.
@@ -88,7 +89,7 @@ Indices
 
 @end menu
 
-@node Overview, Matlab Mode, Top, Top
+@node Overview, New, Top, Top
 @comment  node-name,  next,  previous,  up
 @chapter Overview of Notebook Mode
 @cindex overview of notebook-mode
@@ -159,18 +160,33 @@ Kill the process.
 Re-start the process. 
 
 @item C-c C-f
-@kindex @kbd{C-c C-f} notebook-to-script
-Create a shell script from the notebook.
-The shell script is made up of all the input cells in the notebook.
-The output cells are ignored, and the text in between has comment
-characters, '#', added to the beginning of each line.
-
+@kindex @kbd{C-c C-f} notebook-to-????
+Create a text file from the notebook.
+Notebook mode trys to guess if the text file is plain text, HTML, or
+LaTeX.  It then generates a file of the appropriate type.
 
 @end table
 
 
+@node New, Matlab Mode, Overview, Top
+@comment  node-name,  next,  previous,  up
+@chapter What's New
+@cindex new in version @value{VERSION}
 
-@node Matlab Mode, Octave Mode, Overview, Top
+This version of notebook mode has a several internal changes.  The
+most visible is that coloring is now done by font-lock mode.
+
+Another change is that the notebook modes now inherit from one of the
+text modes: html-mode, text-mode, or latex-mode.  Notebook mode tries
+to guess which type is appropriate by the file type.
+
+@cindex notebook-default-text-mode
+@cindex text mode, default
+For noew files, it uses the variable @code{notebook-default-text-mode}
+to pick a base mode.
+
+
+@node Matlab Mode, Octave Mode, New, Top
 @comment  node-name,  next,  previous,  up
 @chapter Running Matlab in a Notebook
 @cindex matlab
@@ -279,6 +295,13 @@ The name of the cell should match the second pair of parentheses.
 The third set should match the useful part of the output.  
 
 
+The variable @code{nb-preprocess-output}
+can contain a function which is called before output is inserted into
+the cell.  If this variable is nil, no preprocessing is done.
+It is called with the parameters (NAME STRING) where NAME is the name of the cell
+and STRING is the output.  If it returns nil, the output is inserted as usual,
+otherwise the output is ignored.  This can be used so that the process
+can send other information to emacs.
 
 @node Concept Index, Keystroke Index, Create Your Own, Top
 @comment  node-name,  next,  previous,  up

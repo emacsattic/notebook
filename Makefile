@@ -9,7 +9,7 @@ lispdir = $(HOME)/Emacs
 infodir = $(HOME)/Emacs/info
 
 # This should change after an upload.
-VERSION = 1.4
+VERSION = 2.0
 
 LISP = notebook-mode.el \
 	matlab-notebook-mode.el mupad-notebook-mode.el octave-notebook-mode.el \
@@ -27,7 +27,8 @@ install: notebook.info
 	install notebook.info $(infodir)
 	install-info $(infodir)/notebook.info  $(infodir)/dir
 
-version.texi: Makefile
+version.texi: Makefile 
+	@date +"@set UPDATED %d %B %Y" > version.texi
 	@echo "@set VERSION $(VERSION)" >> version.texi
 
 notebook.info: notebook.texi version.texi
@@ -35,7 +36,7 @@ notebook.info: notebook.texi version.texi
 
 clean:
 	rm -rf notebook.dvi notebook.info $(distdir) 
-	rm -rf samp5.tex samp5.dvi samp5.log samp5.aux
+	rm -rf samp5.tex *.dvi *.log *.aux x-*.tex x-*.html x-*.txt
 
 
 ## The stuff below is for developers only:
@@ -49,8 +50,9 @@ notebook-$(VERSION).tgz: $(DISTFILES)
 	cp $(DISTFILES) $(distdir)
 	tar -czf $@ $(distdir)
 
+# I use this to release a new version.  
+# It should only be used by the maintainer -- Fred GC.
 sourceforge: notebook-$(VERSION).tgz
 	scp notebook.html fredgc@shell.sourceforge.net:/home/groups/n/no/notebook/htdocs/index.html
 	ncftpput -p  fredgc@users.sourceforge.net  upload.sourceforge.net /incoming notebook-$(VERSION).tgz
-
-
+	cp notebook.html $(HOME)/public_html/ktb/notebook.html

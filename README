@@ -1,6 +1,7 @@
 ;; $Id$
-Emacs Notebook mode.
-by Fred Gylys-Colwell  (Copyright 1997, 2002).
+
+Emacs Notebook mode, version 2.0.
+by Fred Gylys-Colwell  (Copyright 1997, 2002).  <fredgc@users.sourceforge.net>
 These files are under the GNU Public License (GPL).  See the file COPYING.
 
 Notebook mode sets up a sub process that has well defined input and output
@@ -29,9 +30,22 @@ I've added the following to my auto-mode-alist:
  ("\\.octave$" . octave-notebook-mode)
  ("\\.shell$" . notebook-mode)
 
-
 There are some sample files in this directory.
 
+-----------
+New in Version 2.0:
+
+This version of notebook mode has a several internal changes.  The
+most visible is that coloring is now done by font-lock mode.
+
+Another change is that the notebook modes now inherit from one of the
+text modes: html-mode, text-mode, or latex-mode.  Notebook mode tries
+to guess which type is appropriate by the file type.
+
+Some of the code in this version requires 'replace-regexp-in-string' which is
+not in Emacs 20.  I have found that if you just copy the definition of
+'replace-regexp-in-string' from the file subr.el from a recent version of
+emacs, it will work in the older version.  Your milage may vary.
 
 -----------
 Note:  There is some interaction problem with flyspell-mode.  Both try to

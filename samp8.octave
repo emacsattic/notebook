@@ -39,11 +39,15 @@ Here is some short
 >  ehll = 123.2314234   ehll = 123.23  
 
 So is this,
-$> z_2 = 4.55^3;   $,   or  
+$> z_2 = 4.55^3;   $  or 
 $> z_4 = 2^3   z_4 = 8  $
-or even this:
+or even this: 
 $>  z_4 + z_2   ans = 102.20   $.
 
+Notice that font lock  treats each region between cells as a unit.  So it
+does not handle the math delimeters correctly.  It does work out OK when you
+run \TeX on it, thought.
+ 
 Here is:
 >  [4  3]   ans =  4  3  
 Or >  a = [4  3]   a =  4  3  
