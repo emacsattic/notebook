@@ -4,15 +4,13 @@ This is a list of things that would be nice to do.  And a few bugs that I've
 been too lazy to fix.
 
 -----------
-What the hell is latex-insert-item.
------------
 I wrote special versions of kill and yank that check the new text for cell
 markers.  If text is entered in some other way, the cell markers are not found,
 and might not be in pairs.  This should be fixed.  Or there should be a clever
 work around.
 
 -----------
-Better documentation.  Corect spilling. Complete sentences.
+Fix problem with flyspell.
 
 -----------
 Port to xemacs if possible.

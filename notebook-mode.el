@@ -111,8 +111,9 @@ This is used by {notebook-to-script}. " )
 (defun nb-setup-keymap (keymap)
   (define-key keymap "\n"     'newline)
   (define-key keymap "\e\t"     'nb-next-cell)
-  (define-key keymap "\e\r" 'nb-send-input-forward)
+  (define-key keymap "\m\r" 'nb-send-input-forward)
   (define-key keymap [C-return] 'nb-send-input)
+  (define-key keymap [M-return] 'nb-send-input-forward)
   (define-key keymap [H-return] 'nb-send-input-and-create)
   (define-key keymap "\C-c\C-r" 'nb-send-input-region)
   (define-key keymap "\C-c\C-b" 'nb-send-input-buffer)
@@ -658,8 +659,7 @@ one is created."
 		       cell ))
 	  )))))
 
-(defconst nb-process nil
-  "The notebook process.")
+(defconst nb-process nil "The notebook process.")
 (make-variable-buffer-local 'nb-process)
 
 (defun nb-start-process (&optional old)
@@ -683,8 +683,8 @@ currently running process. (This doesn't work for the shell notebook.)"
     (set-process-filter nb-process 'nb-filter)
 ;    (process-send-string nb-process
 ;			 "alias ls='ls --no-color'\n")
-    (process-send-string nb-process
-			 "PS1=\"\"\n")
+    (process-send-string nb-process "PS1=\"\"\n")
+    (process-kill-without-query nb-process)
     (setq mode-line-process ": run")
     (save-excursion
       (let ((oldbuf (current-buffer))

@@ -32,3 +32,10 @@ I've added the following to my auto-mode-alist:
 There are some sample files in this directory.
 
 
+-----------
+Note:  There is some interaction problem with flyspell-mode.  Both try to
+define M-RET and M-TAB.
+I put this in my flyspell-mode-hook:
+  (define-key flyspell-mode-map "\M-\t" nil)
+  (define-key flyspell-mode-map "\M-\r" nil)
+

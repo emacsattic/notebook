@@ -1,3 +1,8 @@
+2002-10-17  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* notebook-mode.el (nb-start-process): It is now o.k. to quit
+	emacs without killing the subprocess.
+
 2002-10-15  Fred Gylys-Colwell  <fredgc@member.ams.org>
 
 	* all code: commented out debugging statements 'scratch'.

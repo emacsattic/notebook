@@ -8,7 +8,7 @@ Type C-c C-f to run convert this to {\tt samp5.tex}, and then run latex on it.
 
 
 Here is a matrix.
->>   a = [1 2 3; 2 1 5; -4 -1 3]  
+>>a = [1 2 3; 2 1 5; -4 -1 3]  
 a =
      1     2     3
      2     1     5
