@@ -9,6 +9,7 @@
 @include version.texi
 
 @ifinfo
+@dircategory GNU Emacs Lisp
 @direntry
 * Notebook Mode: (notebook).      Use emacs as front end for other programs
 @end direntry
