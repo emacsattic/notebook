@@ -15,7 +15,7 @@ Some useful keys:
 
 2> uptime
 
- 10:30pm  up  1:31,  0 users,  load average: 0.04, 0.12, 0.15
+ 10:42pm  up  1:12,  0 users,  load average: 0.72, 0.38, 0.31
 
 3> sleep 3  
 4> uname -a
@@ -24,12 +24,12 @@ Linux goose.ktb.net 2.4.18 #3 Sun Jun 9 01:16:31 PDT 2002 i586 unknown
 This is some text.
 7>
 /bin/ls  
-ChangeLog		 notebook-1.3		  samp6.shell
-COPYING			 notebook-1.3.tgz	  samp7.fs
-CVS			 notebook.html		  samp8.aux
-debug-notebook.el	 notebook.info		  samp8.dvi
-INSTALL			 notebook-mode.el	  samp8.log
-junk.m			 notebook.texi		  samp8.octave
+ChangeLog		 notebook-1.3.tgz	  samp6.shell
+COPYING			 notebook.html		  samp7.fs
+CVS			 notebook.info		  samp8.aux
+debug-notebook.el	 notebook-mode.el	  samp8.dvi
+INSTALL			 notebook.texi		  samp8.log
+junk.m			 octave-core		  samp8.octave
 Makefile		 octave-notebook-mode.el  samp8.tex
 matlab-notebook-mode.el  README			  samp.mu
 mupad-notebook-mode.el	 samp4.sh		  TODO
@@ -44,7 +44,7 @@ notebook-1.2.tgz	 samp5.matlab
 uptime
 echo "hello" 
 one
- 10:30pm  up  1:31,  0 users,  load average: 0.04, 0.12, 0.15
+ 10:42pm  up  1:12,  0 users,  load average: 0.72, 0.38, 0.31
 hello
 
 9> dog="this is some text"
@@ -61,12 +61,12 @@ bash: dog: command not found
 
 
 35> ls  
-ChangeLog		 notebook-1.3		  samp6.shell
-COPYING			 notebook-1.3.tgz	  samp7.fs
-CVS			 notebook.html		  samp8.aux
-debug-notebook.el	 notebook.info		  samp8.dvi
-INSTALL			 notebook-mode.el	  samp8.log
-junk.m			 notebook.texi		  samp8.octave
+ChangeLog		 notebook-1.3.tgz	  samp6.shell
+COPYING			 notebook.html		  samp7.fs
+CVS			 notebook.info		  samp8.aux
+debug-notebook.el	 notebook-mode.el	  samp8.dvi
+INSTALL			 notebook.texi		  samp8.log
+junk.m			 octave-core		  samp8.octave
 Makefile		 octave-notebook-mode.el  samp8.tex
 matlab-notebook-mode.el  README			  samp.mu
 mupad-notebook-mode.el	 samp4.sh		  TODO
@@ -79,11 +79,11 @@ notebook-1.2.tgz	 samp5.matlab
   
 13>   
 15>date  
-Sat Oct 19 22:29:33 PDT 2002
+Sat Oct 26 22:42:44 PDT 2002
  17>    16>   14> 
 8>  
 5>   another 6>  
-12>    (no output yet)
+12>  
 
 
 

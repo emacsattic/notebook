@@ -299,14 +299,6 @@ It uses (looking-at) to set match data just before returning."
       (while (and (not (looking-at nb-cell-regexp))
 		  (search-backward magic-character nil t)
 		  ))
-;; PENDING -- this was the old methd.
-;;       (while list
-;; 	(if (not (equal (point) (marker-position (nb-cell-begin (car list)))))
-;; 	    (setq list (cdr list))
-;; 	  (setq cell (car list))
-;; 	  (setq list ())
-;; 	  ))
-      ;; PENDING here is the new.
       (setq overlays (overlays-at (point)))
       (while (and overlays (not cell))
 	(setq cell (overlay-get (car overlays) 'cell))
@@ -633,7 +625,7 @@ However, if no-create is t, then it moves to point-max."
   (if (< end beg)
       (let ((temp beg))			;Swap beg and end.
 	(setq beg end)
-	(setq end beg))
+	(setq end temp))
     )
   (save-excursion
     (goto-char beg)

@@ -13,13 +13,10 @@ work around.
 Document creation of functions in matlab/octave modes.  
 -----------
 Port to xemacs if possible.
-
+I think this means get rid of overlays.  (Use text properties instead?)
 -----------
 Add a syntax table that gets turns \b and ^H into a non-whitespace character.
-
 -----------
 Maybe have font-lock verify that the cell is there?  (read up on font-lock-mode).
-
 -----------
-Add a simple function to say if (position) is in a prompt, an input region
-an output region, or not.
+Add a hook so that the process can send messages that don't get put into a cell.
