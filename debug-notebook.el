@@ -119,16 +119,6 @@ instead."
   (nb-kill-process)
   )
 
-(defun debug-notebook-to-script ()
-  "" (interactive)
-  (global-set-key [f12] 'debug-notebook-to-script)
-  (set-buffer "notebook-mode.el")
-  (eval-buffer)
-  (find-file "samp4.shell")
-  (notebook-to-script "samp4.sh")
-  )
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun scratch (string)
   (if debug-on-error 
@@ -172,7 +162,6 @@ instead."
   (if nbd-font-print
       (message (apply 'format  args))))
 
-  
 
 
 (defun debug-syntax-and-face (s table)
