@@ -39,8 +39,10 @@ notebook-$(VERSION).tgz: $(DISTFILES)
 	cp $(DISTFILES) $(distdir)
 	tar -czf $@ $(distdir)
 
-sourceforge:
+sourceforge: notebook-$(VERSION).tgz
 	scp notebook.html fredgc@shell.sourceforge.net:/home/groups/n/no/notebook/htdocs/index.html
+	ncftp -u fredgc@users.sourceforge.net  upload.sourceforge.net /incoming notebook-$(VERSION).tgz
+
 
 clean:
 	rm -rf notebook.dvi notebook.info $(distdir) 
