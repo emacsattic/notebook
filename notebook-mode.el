@@ -359,6 +359,7 @@ a cell at all.
   (define-key keymap "\C-c\C-c" 'nb-kill-process)
   (define-key keymap "\C-c\C-n"     'nb-create-cell)
   (define-key keymap "\C-c\C-d"     'nb-delete-cell-and-text)
+  (define-key keymap "\C-c-"     'nb-clear-output-buffer)
   (define-key keymap "\C-y"     'nb-yank)
   (define-key keymap "\ey"     'nb-yank-pop)
   (define-key keymap "\C-c>"     'nb-toggle-prompt)
@@ -391,6 +392,8 @@ a cell at all.
     '("Send Region to Process" . nb-send-input-region))
   (define-key keymap [menu-bar notebook nb-send-input]
     '("Send Cell to Process" . nb-send-input))
+  (define-key keymap [menu-bar notebook nb-clear-output-buffer]
+    '("Clear all output in buffer" . nb-clear-output-buffer))
   keymap
   )
 
