@@ -137,6 +137,24 @@ currently running process. (This doesn't work for the shell notebook.)"
   )
 (make-variable-buffer-local 'nb-start-process)
 
+(defun nb-find-process (name)
+  "Find a process named NAME that is already running. If there is none,
+return nil."
+  (let ((list (process-list))		;Get a list of processes.
+	(proc) (process nil) (command))
+    (while (and list (not process))		;Look at each one.
+      (setq proc (car list))
+      (setq command (process-name proc))
+      (if (string-match name command)
+	  (setq process proc))
+      (setq list (cdr list))
+      )
+    process				; Return the result of the search.
+    )
+  )
+
+
+
 
 ;; Here are some variables that make up regular expressions.
 (let ( (name "\\([^ \t\n\b\f>]*\\)")	; Possible name regular expression.
@@ -311,7 +329,7 @@ a cell at all.
 	(concat paragraph-separate
 		))
   ;; Now, set up the font-lock mode.
-  (nb-font-lock-setup input-mode output-mode)
+  (if nb-use-font-lock (nb-font-lock-setup input-mode output-mode))
   ;; PENDING: This shouldn't be turned on unless font-lock-global something is
   ;; PENDING: set.  
   )
@@ -333,30 +351,34 @@ a cell at all.
   (define-key keymap "\ey"     'nb-yank-pop)
   (define-key keymap "\C-c>"     'nb-toggle-prompt)
   (define-key keymap "\C-c\C-f" nb-text-mode-converter)
+  (if (and (not (lookup-key keymap "\C-c\C-v"))
+	   (functionp 'TeX-command-master))
+    (define-key keymap "\C-c\C-v" 'TeX-command-master)) ; 
+    
   (define-key keymap
     [menu-bar notebook] (cons "Notebook" (make-sparse-keymap "Notebook")))
-  (define-key keymap [menu-bar notebook nb-send-input]
-    '("Send Cell to Process" . nb-send-input))
-  (define-key keymap [menu-bar notebook nb-send-input-region]
-    '("Send Region to Process" . nb-send-input-region))
-  (define-key keymap [menu-bar notebook nb-send-input-buffer]
-    '("Send Buffer to Process" . nb-send-input-buffer))
-  (define-key keymap [menu-bar notebook nb-start-process ]
-    '("Start a New Process" . nb-start-process))
-  (define-key keymap [menu-bar notebook nb-kill-process]
-    '("Kill Process" . nb-kill-process))
-  (define-key keymap [menu-bar notebook nb-create-cell]
-    '("New Cell" . nb-create-cell))
-  (define-key keymap [menu-bar notebook nb-delete-cell-and-text]
-    '("Delete Cell" . nb-delete-cell-and-text))
-  (define-key keymap [menu-bar notebook notebook-to-script]
-    '("Create Shell Script" . notebook-to-script))
-  (define-key keymap [menu-bar notebook notebook-to-tex]
-    '("Create TeX File From Notebook" . notebook-to-tex))
-  (define-key keymap [menu-bar notebook notebook-to-html]
-    '("Create HTML File From Notebook" . notebook-to-html))
   (define-key keymap [menu-bar notebook notebook-to-plain-text]
     '("Create Plain Text File From Notebook" . notebook-to-plain-text))
+  (define-key keymap [menu-bar notebook notebook-to-html]
+    '("Create HTML File From Notebook" . notebook-to-html))
+  (define-key keymap [menu-bar notebook notebook-to-tex]
+    '("Create TeX File From Notebook" . notebook-to-tex))
+  (define-key keymap [menu-bar notebook notebook-to-script]
+    '("Create Shell Script" . notebook-to-script))
+  (define-key keymap [menu-bar notebook nb-delete-cell-and-text]
+    '("Delete Cell" . nb-delete-cell-and-text))
+  (define-key keymap [menu-bar notebook nb-create-cell]
+    '("New Cell" . nb-create-cell))
+  (define-key keymap [menu-bar notebook nb-kill-process]
+    '("Kill Process" . nb-kill-process))
+  (define-key keymap [menu-bar notebook nb-start-process ]
+    '("Start a New Process" . nb-start-process))
+  (define-key keymap [menu-bar notebook nb-send-input-buffer]
+    '("Send Buffer to Process" . nb-send-input-buffer))
+  (define-key keymap [menu-bar notebook nb-send-input-region]
+    '("Send Region to Process" . nb-send-input-region))
+  (define-key keymap [menu-bar notebook nb-send-input]
+    '("Send Cell to Process" . nb-send-input))
   keymap
   )
 
@@ -421,6 +443,9 @@ the start of the cell text.  The new cell is returned."
 	(setq nb-cell-list (cons cell nb-cell-list))
 	(nb-set-cell-status cell 'unentered) ; adjust the colors of the cell.
 	
+	(unless nb-use-font-lock
+	  (overlay-put input 'face 'notebook-input-face)
+	  (overlay-put output 'face 'notebook-output-face))
 	;; Use the following so that the overlays can keep track of changes
 	;; in their text.
 	;;; PENDING -- check that prompt can change
@@ -516,12 +541,15 @@ is created on the following line."
 
 ;;; Font Lock code.
 
-
+(defconst nb-use-font-lock
+  (boundp 'font-lock-multiline)		; this is set in new versions of font-lock.
+  "This is true if notebook modes should use font lock on the input/output regions."
+  )
 
 (defun nb-font-lock-setup (input-mode output-mode)
   "Turn on the alternate fontlock mode for a notebook."
-;;   (message "font-lock-setup mod=%s in=%s out=%s" (buffer-modified-p)
-;; 	   input-mode output-mode)
+;;    (message "font-lock-setup mod=%s in=%s out=%s" (buffer-modified-p)
+;;  	   input-mode output-mode)
   (add-hook (make-local-variable 'change-major-mode-hook) 'nb-turnoff-font-lock)
   (if (not (equal font-lock-fontify-region-function 'nb-fontify-region))
       (set (make-local-variable 'original-fontify)
@@ -574,7 +602,8 @@ is created on the following line."
       (unless nb-syntax-table (setq nb-syntax-table (syntax-table)))
       ;; (message "Setting the defaults....")
       (font-lock-mode t)
-      ;; (message "after set-defaults, font-lock-keywords = %S" font-lock-keywords)
+      ;; (message "after set-defaults") 
+      ;; (message "font-lock-keywords = %S" font-lock-keywords)
       (setq data (nb-store nb-font-lock-variables))
       (if own-buffer (kill-buffer temp-buffer))
       ;; (message "Done with kill buffer")
@@ -901,33 +930,43 @@ If there is no cell at or before this position, nothing is sent."
   )
 
 
-;; PENDING if name == "control" call the control function. (or maybe cellless.)
-;; PENDING if cell doesn't exist, warn that data is being thrown out.
+(defconst nb-preprocess-output nil
+  "A function hook which adjusts an output string before it is inserted into
+the buffer. If this variable is nil, no preprocessing is done.
+It is called with the parameters (NAME STRING) where NAME is the name of the cell
+and STRING is the output.  If it returns nil, the output is inserted as usual,
+otherwise the output is ignored.
+")
+(make-variable-buffer-local 'nb-preprocess-output)
+
 (defun nb-insert-output (buffer name string)
   "Put STRING in the cell named NAME, in the buffer BUFFER."
   (save-excursion			; Return to proces buffer afterwards.
     (set-buffer buffer)
-    (save-excursion			; Save current point and mark.
-      (let ((cell (nb-find-cell-by-name name))
-	    )
-	(if (equal cell nil)
-	    (if (equal name "error") (message string)) ;Put error as a message. 
-	  ;; Otherwise, insert output.
-	  (nb-set-cell-status cell 'processed)
-	  (goto-char (nb-cell-begin cell))
-	  (if (not (looking-at nb-cell-regexp))
-	      (error "Cell %s doesn't look like an I/O cell." name))
-	  (goto-char (match-beginning 4))
-	  (delete-region (match-beginning 4) (match-end 4))
-	  (insert string)
-	  (if nb-adjust-output-string
-	      (funcall nb-adjust-output-string
-		       (match-beginning 3)
-		       (match-end 3)
-		       (match-beginning 4)
-		       (+ (match-beginning 4) (length string))
-		       cell ))
-	  )))))
+    (unless (and nb-preprocess-output
+	     (funcall nb-preprocess-output name string))
+	
+      (save-excursion			; Save current point and mark.
+	(let ((cell (nb-find-cell-by-name name))
+	      )
+	  (if (equal cell nil)
+	      (if (equal name "error") (message string)) ;Put error as a message. 
+	    ;; Otherwise, insert output.
+	    (nb-set-cell-status cell 'processed)
+	    (goto-char (nb-cell-begin cell))
+	    (if (not (looking-at nb-cell-regexp))
+		(error "Cell %s doesn't look like an I/O cell." name))
+	    (goto-char (match-beginning 4))
+	    (delete-region (match-beginning 4) (match-end 4))
+	    (insert string)
+	    (if nb-adjust-output-string
+		(funcall nb-adjust-output-string
+			 (match-beginning 3)
+			 (match-end 3)
+			 (match-beginning 4)
+			 (+ (match-beginning 4) (length string))
+			 cell ))
+	    ))))))
 ;;
 (defun nb-start-process (&optional old)
   "This function is called in order to start a new process for the
@@ -1307,15 +1346,21 @@ It returns the cell, or nil if no cell was found."
 	(insert "\n"))
       ;; Now run TeX on it: (this is taken from tex-file...)
       (save-some-buffers)
-      (if (tex-shell-running)
-	  (tex-kill-job)
-	(tex-start-shell))
-      (tex-send-command tex-shell-cd-command file-dir)
-      (tex-send-command tex-command tex-name)
-      (setq tex-last-buffer-texed (current-buffer))
-      (setq tex-print-file (buffer-file-name))
-      )
-    (tex-display-shell) 
+
+      (if (functionp 'TeX-command-master) ;if AucTeX is installed
+	  (TeX-command-master)
+	  ;; Otherwise, don't use auctex.
+	  ;; This is the regular tex-mode version: 
+	(if (tex-shell-running)
+	    (tex-kill-job)
+	  (tex-start-shell))
+	(tex-send-command tex-shell-cd-command file-dir)
+	(tex-send-command tex-command tex-name)
+	(setq tex-last-buffer-texed (current-buffer))
+	(setq tex-print-file (buffer-file-name))
+	)
+      )	;;  End of stuff in tex-buffer.  Now we go back to notebook buffer.
+    (if (functionp 'tex-display-shell) (tex-display-shell) )
     )
   )
 
@@ -1389,10 +1434,9 @@ It returns the cell, or nil if no cell was found."
   (lambda (string buffer name)
     ;; (scratch (format "Adjusting %s from cell %s.\n" string name))
     (replace-regexp-in-string 
-     "\\$" "\\\\$"
-     (replace-regexp-in-string
-      "%" "\\\\%"
-      string)))
+     ;; PENDING: this is not needed in verbatim mode.
+     "\\([%{}\\\\\\$]\\)" "\\\\\\1"
+      string))
   "A function which adjusts an input string so that it is valid tex.")
 (make-variable-buffer-local 'nb-adjust-tex-input)
 
@@ -1559,9 +1603,8 @@ Re-start the process.
 \\[notebook-to-script]
 Creates a new shell script out of the notebook.
 
-
-Entry to this mode calls the value of `notebook-mode-hook'
-if that value is non-nil."
+Entry to this mode calls the value of `notebook-mode-hook',
+`shell-notebook-mode-hook', and any hooks called by the text mode."
   (interactive)
   ;; Note: I'll add comments starting with M: if this is a standard thing
   ;; a mode should do.
@@ -1630,108 +1673,8 @@ characters, '#', added to the beginning of each line.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-
-
 ;;; End of notebook-mode.el
 
-
-
-;;; PENDING **********************************************************************
-;;; PENDING **********************************************************************
-;;; PENDING **********************************************************************
-;;; PENDING **********************************************************************
-;;; PENDING **********************************************************************
-;;; PENDING **********************************************************************
-;;; PENDING **********************************************************************
-;;; PENDING **********************************************************************
-;;; PENDING **********************************************************************
-;;; PENDING **********************************************************************
-;;; PENDING **********************************************************************
-
-
-;;; XXX make ^H have word syntax.
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;; XXX -- make a simple set of these, and use them.
-;; (defvar notebook-mode-map (nb-setup-keymap (make-sparse-keymap))
-;;   "Keymap for notebook mode.")
-;;; XXX notebook-tex/html/text-map
-
-
-;;;
-;;; keymaps:
-;;;  minor-mode-map-alist keymaps first.
-;;;  local map.
-;;;  overriding-local-map (if set)
-;;;  global map.
-;;;---- local set key sets the local-map (shared by mode)
-;;;XXX try this for keymaps:
-;;; one keymap each for inheriting from tex, text, html.
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;
-;;; XXX
-;;; add (defvar notebook-default-text-style
-;;; (nb-pick-text-style...
-;;; nb-text/html/tex-font-lock-init
-
-;;;
-;;; rename cell.  renumber all cells (in order).
-;;; Just get rid of cell numbers?  --
-;;; --  what about cut/paste -- output should follow?
-
-;;; Make sure font lock is turned on????
-
-;; XXX -- rename all interactives from nb-* to notebook-*.
-;; XXX -- or just copy them with a deprecated tag.
-;; rename these?  or just document them....
-;; nb-send-input-forward, nb-send-input-and-create, nb-send-input-buffer,
-;; nb-send-input-region, nb-send-input, nb-next-cell,
-;; nb-delete-cell-and-text, nb-yank, nb-yank-pop, nb-create-cell
-;; nb-find-cell-by-position, nb-cell-part-by-position, nb-start-process,
-;; nb-kill-process, notebook-to-script
-
-
-
-;; do this:
-;; clean out local variables.
-;; choose text mode, run text mode hook.
-;; initialize font lock.  (input-font, output-font)
-;; init rest of notebook.
-;; set syntax table.
-;; set mode name.
-;; run generic hooks
-;; run special hooks.
-;;
-;;
-;; notebook-default-choose-text-mode
-;;
-;;
-;; notebook-to-script -- can be modified a bit....
-;; 
-
-
-;; auctex's version:
-;; TeX-master is the master tex file.
-;; TeX-command-list
-;; (("TeX" "tex '\\nonstopmode\\input %t'" TeX-run-TeX nil t)
-;;  ("TeX Interactive" "tex %t" TeX-run-interactive nil t)
-;;  ("LaTeX" "%l '\\nonstopmode\\input{%t}'" TeX-run-LaTeX nil t)
-;;  ("LaTeX Interactive" "%l %t" TeX-run-interactive nil t)
-;;  ("LaTeX2e" "latex2e '\\nonstopmode\\input{%t}'" TeX-run-LaTeX nil t)
-;;  ("View" "%v " TeX-run-silent t nil)
-;;  ("Print" "%p " TeX-run-command t nil)
-;;  ("Queue" "%q" TeX-run-background nil nil)
-;;  ("File" "dvips %d -o %f " TeX-run-command t nil)
-;;  ("BibTeX" "bibtex %s" TeX-run-BibTeX nil nil)
-;;  ("Index" "makeindex %s" TeX-run-command nil t)
-;;  ("Check" "lacheck %s" TeX-run-compile nil t)
-;;  ("Spell" "<ignored>" TeX-run-ispell-on-document nil nil)
-;;  ("Other" "" TeX-run-command t t)
-;;  ("LaTeX PDF" "pdflatex '\\nonstopmode\\input{%t}'" TeX-run-LaTeX nil t)
-;;  ("Makeinfo" "makeinfo %t" TeX-run-compile nil t)
-;;  ("Makeinfo HTML" "makeinfo --html %t" TeX-run-compile nil t)
-;;  ("AmSTeX" "amstex '\\nonstopmode\\input %t'" TeX-run-TeX nil t))
+;; PENDING: do something like this:  
+;; (setq TeX-file-extensions
+;;  '("tex" "sty" "cls" "ltx" "texi" "texinfo" "shell" "matlab" "octave"))
