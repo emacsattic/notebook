@@ -63,7 +63,7 @@
      "^\\s-*;" "" 			; remove blank lines with semicolons.
      (replace-regexp-in-string
       "\\s-*;\\(\\s-*;\\)*" ";"	     ;replace several semicolons with only one.
-      (concat "echo -e \"\\fBegin " buffer " " name "\";" string
+      (concat "echo -e \"\\fBegin \\f" buffer "\\f " name "\";" string
 	      "; echo -e \"\\fEnd " name "\";\n")))
     )
   "A function which adjusts an input string so that it can be sent to
@@ -191,8 +191,8 @@ cell if it wishes (e.g. \"\bin(%s) =  \n< >\b\").  "
 
   (defconst nb-output-regexp 
     (concat
-     "\fBegin" ws			; A keywork
-     name ws name ws "\n"		; The buffer name, and cell name.
+     "\fBegin \f"			; A keywork
+     body "\f" ws name ws "\n"		; The buffer name, and cell name.
      body				; The useful part of the output.
      ws "\fEnd" ws  
      "\\2" )				; The name should be at the end.

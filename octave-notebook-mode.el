@@ -49,7 +49,7 @@ In addition to `octave-notebook-hook', and whatever hooks the text mode runs,
   "Set regular expressions for octave like mode."
   (let ( (name "\\([^ \t\n\b\f)(]*\\)")	; Possible name of function or cell.
 	 (ws "\\s *")			; Whitespace.
-	 (body "\\([^\b]*\\)")		; Body of input or output region.
+	 (body "\\([^\b\f]*\\)")	; Body of input or output region.
 	 )
     (setq nb-cell-regexp
 	  (concat "\b\\(>>?\\)" 	; Prompt
@@ -59,18 +59,16 @@ In addition to `octave-notebook-hook', and whatever hooks the text mode runs,
     (setq nb-empty-cell-format
 	  (concat "\b>>  \b\n(no output yet)\b\n"))
     (setq nb-output-regexp
-	  (concat "Begin" ws name ws name
-		  "\n\\([^\f]*\\)" ws	;Body of output
+	  (concat "Begin \f"  body "\f" ws name ws; buffer name, and cell name
+		  "\n\\([^\f]*\\)" ws ;Body of output
 		  "\fEnd" ws "\\2" ))
-    (setq octave-function-regexp	; A function definition is...
-	  (concat ws "function"		; the keyword function, 
-		  "[^=]*=" ws		; some variables and an equal sign
-		  name))		; and then the name.
+    (defconst octave-function-regexp	; A function definition is...
+      (concat ws "function"		; the keyword function, 
+	      "[^=]*=" ws		; some variables and an equal sign
+	      name)			; and then the name.
+      "This matches the definition of a function.")
     ))
 
-
-(defconst octave-function-regexp nil
-  "This matches the definition of a function.")
 
 (defconst octave-notebook-adjust-input-string
   (lambda (string buffer name)
@@ -80,9 +78,10 @@ In addition to `octave-notebook-hook', and whatever hooks the text mode runs,
 	(goto-char (overlay-start (nb-cell-input-overlay cell)))
 	(if (not (looking-at octave-function-regexp)) 
 	    ;; If it's not a function, it's regular input, so send it along.
-	    (concat "'Begin " buffer " " name "'\n"	
+;;	    (concat "fprintf('Begin \\f" buffer "\\f " name " ')\n"	
+	    (concat "'Begin \\f" buffer "\\f " name " '\n"	
 		    string
-		    "\nfprintf('\\fEnd " name "')\n")
+		    "\nfprintf('\\fEnd " name " .')\n")
 	  ;; If it is a function, save the file, and don't send anything
 	  ;; to octave.
 	  (setq file-name (format "%s.m"
