@@ -9,7 +9,7 @@ lispdir = $(HOME)/Emacs
 infodir = $(HOME)/Emacs/info
 
 # This should change after an upload.
-VERSION = 1.3
+VERSION = 1.4
 
 LISP = notebook-mode.el \
 	matlab-notebook-mode.el mupad-notebook-mode.el octave-notebook-mode.el \

@@ -1,3 +1,18 @@
+2002-10-19  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* notebook-mode.el (nb-initialize-one-cell): Added some info to
+	the overlay so that it knows what cell it is part of.
+	(nb-delete-cell-and-text): delete cell from cell list when text is deleted.
+	(nb-cell-part-by-position): Added a function that derived modes
+	can use to figure out if point is in a cell, and which part of the
+	cell it is in.
+	(nb-find-cell-by-position): If the point is in a region that looks
+	like a cell, but is not on the list, then a new cell is
+	initialized.  This happens if you insert another file into the
+	current buffer.
+
+	-- released 1.3
+	
 2002-10-18  Fred Gylys-Colwell  <fredgc@member.ams.org>
 
 	* octave-notebook-mode.el (octave-notebook-adjust-output-string):

@@ -41,7 +41,8 @@ the process will have to be recognized by NAME and BUFFER.")
   (lambda (i-beg i-end o-beg o-end cell)
     (save-excursion
       (goto-char o-beg)
-      (insert "\n")
+      (if (looking-at " *\b") ()
+	(insert "\n"))
       ))
   "A function which adjusts an output string that came from 
 the process.  It is called with INPUT-START, INPUT-END
@@ -73,7 +74,10 @@ used in searches.
 The first set of parenthesis should match the prompt.
 The second set should match either the cell name, or an empty string.
 The third should match the input part of the cell.
-The fourth should match the output part of the cell.")
+The fourth should match the output part of the cell.
+
+It is hard coded in part of the code that a byte of 0x07 is signals a
+boundary for this input.")
   (make-variable-buffer-local 'nb-cell-regexp)
 
   (defconst nb-empty-cell-format 
@@ -94,7 +98,11 @@ cell if it wishes (e.g. \"\bin(%s) =  \n< >\b\").  "
 process.
 The name of the buffer should match the first set of parentheses.
 The name of the cell should match the second pair of parentheses.
-The third set should match the useful part of the output.  ")
+The third set should match the useful part of the output.
+
+This should not use 0x07 to signal a boundary, since that is
+used for the input. A form feed works nicely as a specail marker.
+")
   (make-variable-buffer-local 'nb-output-regexp)
   )
 
@@ -277,13 +285,13 @@ if that value is non-nil."
     result				;return result from the loop.
     ) )
 
-(defun nb-find-cell-by-position (pos strict)
+(defun nb-find-cell-by-position (pos &optional strict)
   "Find the cell which contains the position POS.
 If strict is nil, it finds the cell before or containing POS, otherwise
 it finds the cell strictly containing POS. It returns nil if there is no
 such cell.
 It uses (looking-at) to set match data just before returning."
-  (let ((cell) (magic-character (substring nb-cell-regexp 0 1)) (list nb-cell-list))
+  (let ((cell) (magic-character (substring nb-cell-regexp 0 1)) (overlays))
     ;;(scratch (format "Looking for cell at %d.  " pos))
     (save-excursion
       (goto-char pos)
@@ -291,14 +299,26 @@ It uses (looking-at) to set match data just before returning."
 		  (search-backward magic-character nil t)
 		  ))
       ;;(scratch "Found (")
-      (while list
-	(if (not (equal (point) (marker-position (nb-cell-begin (car list)))))
-	    (setq list (cdr list))
-	  (setq cell (car list))
-	  (setq list ())
-	  ))
+;; PENDING -- this was the old methd.
+;;       (while list
+;; 	(if (not (equal (point) (marker-position (nb-cell-begin (car list)))))
+;; 	    (setq list (cdr list))
+;; 	  (setq cell (car list))
+;; 	  (setq list ())
+;; 	  ))
+      ;; PENDING here is the new.
+      (setq overlays (overlays-at (point)))
+      (while (and overlays (not cell))
+	(setq cell (overlay-get (car overlays) 'cell))
+	(setq overlays (cdr overlays)))
+
       (if (not cell)			;if no cell was found.
-	  ()				; return null if no cell found.
+	  (if (looking-at nb-cell-regexp)
+	      ;; This is probably an error: looking at a cell that is not on
+	      ;; the list.  So we will just add it quietly to the list:
+	      (nb-initialize-one-cell (point)) 
+	       ()			; Not looking at a cell.  return quietly.
+	       )				; return null if no cell found.
 	(looking-at nb-cell-regexp)
 	;;(scratch (format ") %s is from %d to %d. "
 	;;		 (nb-cell-name cell) (match-beginning 0) (match-end 0)))
@@ -308,16 +328,21 @@ It uses (looking-at) to set match data just before returning."
 	cell				;return the result.
 	))))
 
-;; PENDING: remove this:
-(defun nb-find-cell-by-position-part2 (list pos)
-  "Find the cell in LIST whose begin marker is at POS."
-  (if (equal '() list)
-      ()
-    ;;(scratch (format " %s" (nb-cell-name (car list))))
-    (if (equal (marker-position (nb-cell-begin (car list))) pos)
-	(car list)
-      (nb-find-cell-by-position-part2 (cdr list) pos) ; recursion!
-      )))
+
+(defun nb-cell-part-by-position (pos)
+  "Returns the part of a cell that POS is in.  It can either be
+the tokens 'prompt, 'input, 'output, or nil, if the position is either
+in the prompt, the input region, the output region of a cell, or not in
+a cell at all.
+"
+  (interactive "d")
+  (let ((overlays (overlays-at (pos))) (type))
+    (while (and overlays (not type))
+      (setq type (overlay-get (car overlays) 'cell-part))
+      (setq overlays (cdr overlays)))
+    type
+    ))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Cell creation and intialization.
@@ -340,7 +365,7 @@ It uses (looking-at) to set match data just before returning."
 
 (defun nb-initialize-one-cell (pos)	
   "Create cell data for the cell at position POS.  POS must be exactly at
-the start of the cell text."
+the start of the cell text.  The new cell is returned."
   ;;(scratch (format "Creating a new cell at %d.\n" pos))
   (save-excursion
     (goto-char pos)
@@ -397,6 +422,12 @@ the start of the cell text."
 	(overlay-put output 'insert-in-front-hooks 
 		     (nb-make-hook 'nb-insert-in-front-output cell))
 	(nb-set-colors cell)		; adjust the colors of the cell.
+	(overlay-put prompt 'cell-part 'prompt) 
+	(overlay-put  input 'cell-part  'input) 
+	(overlay-put output 'cell-part 'output) 
+	(overlay-put prompt 'cell cell) 
+	(overlay-put  input 'cell cell) 
+	(overlay-put output 'cell cell) 
 	cell
 	)
       ))      
@@ -445,10 +476,10 @@ is created on the following line."
   (goto-char pos)			; Go back to the start.
   (looking-at nb-cell-regexp)		; Find the match data.
   (goto-char (match-beginning 3))	; Leave point at the start of the input data.
-  ;; PENDING  -- this breaks something?
   (save-excursion
-    (indent-according-to-mode)))       ; Finally, leave this cell looking nice.
-
+    (indent-according-to-mode))       ; Finally, leave this cell looking nice.
+  ;;; PENDING -- return the new cell.
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Colors:
@@ -604,7 +635,8 @@ one is created."
   )
 
 (defun nb-send-input (position)
-  "Send the input cell at or before POSITION.  point isn't moved."
+  "Send the input cell at or before POSITION.  point isn't moved.
+If there is no cell at or before this position, nothing is sent."
   (interactive "d")
   (save-excursion
     (if (or (not nb-process)
@@ -828,8 +860,11 @@ currently running process. (This doesn't work for the shell notebook.)"
   (interactive "d")
   (let ((cell (nb-find-cell-by-position pos t)))
     (if cell
-	(delete-region (nb-cell-begin cell)	; Delete the text.
-		       (overlay-end (nb-cell-output-overlay cell)))
+	(progn 
+	 (delete-region (nb-cell-begin cell)	; Delete the text.
+			(overlay-end (nb-cell-output-overlay cell)))
+	 (nb-delete-cell-data cell)
+	 )
       (error (format "Position %d is not in an I/O cell." pos)))
     ))
 
@@ -873,6 +908,7 @@ currently running process. (This doesn't work for the shell notebook.)"
   (while (nb-find-cell-by-name (format "%d" nb-next-cell-number))
     (setq nb-next-cell-number (+ 1 nb-next-cell-number)))
   (format "%d" nb-next-cell-number))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
