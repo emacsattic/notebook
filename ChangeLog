@@ -1,3 +1,10 @@
+2003-05-18  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* notebook-mode.el (nb-insert-output): The status of a cell is no
+	longer set to 'processed unless the previous status was 'entered.
+	This way, if a change is made after the cell was entered, it will
+	still have status 'unentered.
+
 2003-03-19  Fred Gylys-Colwell  <fredgc@member.ams.org>
 
 	* notebook-mode.el:
