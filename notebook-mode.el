@@ -22,10 +22,14 @@
 
 (defconst nb-adjust-input-string
   (lambda (string buffer name)
-    (scratch (format "Adjusting %s from cell %s.\n" string name))
-    (concat "echo -e \"\\fBegin " buffer " " name "\";" 
-	    string
-	    "; echo -e \"\\fEnd " name "\";\n"))
+    ;; (scratch (format "Adjusting %s from cell %s.\n" string name))
+    (replace-regexp-in-string
+     "^\\s-*;" "" 
+     (replace-regexp-in-string
+      "\\s-*;\\(\\s-*;\\)*" ";" 
+      (concat "echo -e \"\\fBegin " buffer " " name "\";" string
+	      "; echo -e \"\\fEnd " name "\";\n")))
+    )
   "A function which adjusts an input string so that it can be sent to
 the process.  It is called with STRING, BUFFER, and NAME.
 STRING is the string which should be sent.  BUFFER is the name of the
@@ -94,6 +98,15 @@ The third set should match the useful part of the output.  ")
   (make-variable-buffer-local 'nb-output-regexp)
   )
 
+(defvar nb-shell-script-extension ".sh"
+  "The default extension to use when creating a new shell script.
+This is used by {notebook-to-script}. " )
+  
+(defvar nb-shell-script-line "#! /bin/bash"
+  "The first line to put in a new shell script.
+This is used by {notebook-to-script}. " )
+  
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun nb-setup-keymap (keymap)
   (define-key keymap "\n"     'newline)
@@ -109,6 +122,7 @@ The third set should match the useful part of the output.  ")
   (define-key keymap "\C-c\C-d"     'nb-delete-cell-and-text)
   (define-key keymap "\C-y"     'nb-yank)
   (define-key keymap "\ey"     'nb-yank-pop)
+  (define-key keymap "\C-c\C-f"     'notebook-to-script)
   (define-key keymap
     [menu-bar notebook] (cons "Notebook" (make-sparse-keymap "Notebook")))
   (define-key keymap [menu-bar notebook nb-send-input]
@@ -125,6 +139,8 @@ The third set should match the useful part of the output.  ")
     '("New Cell" . nb-create-cell))
   (define-key keymap [menu-bar notebook nb-delete-cell-and-text]
     '("Delete Cell" . nb-delete-cell-and-text))
+  (define-key keymap [menu-bar notebook notebook-to-script]
+    '("Create Shell Script" . notebook-to-script))
   keymap
   )
 
@@ -189,18 +205,21 @@ Kill the process.
 \\[nb-start-process]
 Re-start the process. 
 
+\\[notebook-to-script]
+Creates a new shell script out of the notebook.
+
 
 
 Entry to this mode calls the value of `notebook-mode-hook'
 if that value is non-nil."
 
-  (scratch "Running notebook mode.\n") 
+  ;; (scratch "Running notebook mode.\n") 
   (notebook-mode-initialize))
 
 
 (defun notebook-mode-initialize ()
   "This initializes notebook-mode and its variants."
-  (scratch "Initializing notebook mode.\n") 
+  ;; (scratch "Initializing notebook mode.\n") 
   (put 'funney-mode 'mode-class 'special) ; This mode uses special text.
   (setq buffer-display-table nb-display-table) ; Use brackets for characters.
   (setq nb-cell-list nil)
@@ -209,8 +228,8 @@ if that value is non-nil."
       (setq mode-line-process (format ": %s" (process-status nb-process)))
     (setq mode-line-process ": no proc.")
     )
-  (scratch (format "nb-cell-regexp = %s, aref = %s\n" nb-cell-regexp
-		   (aref nb-cell-regexp 0)))
+  ;;(scratch (format "nb-cell-regexp = %s, aref = %s\n" nb-cell-regexp
+  ;;		   (aref nb-cell-regexp 0)))
   
   (setq paragraph-start			;A paragraph starts with:
 	(concat paragraph-start		; what ever it did before.
@@ -246,7 +265,7 @@ if that value is non-nil."
 
 (defun nb-find-cell-by-name (name)
   "Search the cell list for the cell named NAME cell."
-  (scratch (format "Trying to find cell %s\n" name))
+  ;;(scratch (format "Trying to find cell %s\n" name))
   (let ((result ()) (list nb-cell-list))
     (while list
       (if (not (equal name (nb-cell-name (car list))))
@@ -265,13 +284,13 @@ it finds the cell strictly containing POS. It returns nil if there is no
 such cell.
 It uses (looking-at) to set match data just before returning."
   (let ((cell) (magic-character (substring nb-cell-regexp 0 1)) (list nb-cell-list))
-    (scratch (format "Looking for cell at %d.  " pos))
+    ;;(scratch (format "Looking for cell at %d.  " pos))
     (save-excursion
       (goto-char pos)
       (while (and (not (looking-at nb-cell-regexp))
 		  (search-backward magic-character nil t)
 		  ))
-      (scratch "Found (")
+      ;;(scratch "Found (")
       (while list
 	(if (not (equal (point) (marker-position (nb-cell-begin (car list)))))
 	    (setq list (cdr list))
@@ -281,11 +300,11 @@ It uses (looking-at) to set match data just before returning."
       (if (not cell)			;if no cell was found.
 	  ()				; return null if no cell found.
 	(looking-at nb-cell-regexp)
-	(scratch (format ") %s is from %d to %d. "
-			 (nb-cell-name cell) (match-beginning 0) (match-end 0)))
+	;;(scratch (format ") %s is from %d to %d. "
+	;;		 (nb-cell-name cell) (match-beginning 0) (match-end 0)))
 	(if (and strict (> pos (match-end 0))) ; not before the end of cell...
 	    (setq cell nil))
-	(scratch (format "cell-by-pos is %s.\n" (nb-cell-name cell)))
+	;;(scratch (format "cell-by-pos is %s.\n" (nb-cell-name cell)))
 	cell				;return the result.
 	))))
 
@@ -294,7 +313,7 @@ It uses (looking-at) to set match data just before returning."
   "Find the cell in LIST whose begin marker is at POS."
   (if (equal '() list)
       ()
-    (scratch (format " %s" (nb-cell-name (car list))))
+    ;;(scratch (format " %s" (nb-cell-name (car list))))
     (if (equal (marker-position (nb-cell-begin (car list))) pos)
 	(car list)
       (nb-find-cell-by-position-part2 (cdr list) pos) ; recursion!
@@ -310,8 +329,8 @@ It uses (looking-at) to set match data just before returning."
 	(setq beg end)
 	(setq end beg))
     )
-  (scratch (format "Initializing between %d and %d.\n" beg end))
-  (scratch (format "Looking for '%s'.\n" nb-cell-regexp))
+  ;;(scratch (format "Initializing between %d and %d.\n" beg end))
+  ;;(scratch (format "Looking for '%s'.\n" nb-cell-regexp))
   (save-excursion
     (goto-char beg)
     (while (re-search-forward nb-cell-regexp end t)
@@ -322,7 +341,7 @@ It uses (looking-at) to set match data just before returning."
 (defun nb-initialize-one-cell (pos)	
   "Create cell data for the cell at position POS.  POS must be exactly at
 the start of the cell text."
-  (scratch (format "Creating a new cell at %d.\n" pos))
+  ;;(scratch (format "Creating a new cell at %d.\n" pos))
   (save-excursion
     (goto-char pos)
     (if (not (looking-at nb-cell-regexp))
@@ -404,13 +423,13 @@ is created on the following line."
   (interactive "d")
   ;; First, position point at POS.  However, we must make sure that we
   ;; don't try to embed a new cell into an old one.
-  (scratch "Creating new cell:\n")
+  ;;(scratch "Creating new cell:\n")
   (if (or (not (nb-find-cell-by-position pos t)) ; If not in a cell,
 	  (equal pos (match-beginning 0))) ; or at the very start of a
 						 ; cell .
       (goto-char pos)			; Goto the given position.
-    (scratch (format "Trying to insert into cell %s.\n"
-		     (nb-cell-name (nb-find-cell-by-position pos t))))
+    ;;(scratch (format "Trying to insert into cell %s.\n"
+    ;;	     (nb-cell-name (nb-find-cell-by-position pos t))))
     (goto-char (match-end 0))		;otherwise Goto to the end of the cell,
     (forward-line 1)			; And then go to the next line.
     (if (nb-find-cell-by-position (point) t) ; If we've moved to a new cell,
@@ -418,7 +437,7 @@ is created on the following line."
     
     )
   (setq pos (point))
-  (scratch "Position found. Inserting text.\n")
+  ;;(scratch "Position found. Inserting text.\n")
   (insert-before-markers		; Insert text for a new cell.
    (format nb-empty-cell-format		
 	   (funcall nb-name-new-cell)))
@@ -436,8 +455,8 @@ is created on the following line."
 (defun nb-set-colors (cell)
   "Set the colors of the cell appropriately."
   (let ( (status (nb-cell-status cell)))
-    (scratch (format "Set color for %s (status = %s)\n"
-		     (nb-cell-name cell) status))
+    ;;(scratch (format "Set color for %s (status = %s)\n"
+    ;;	     (nb-cell-name cell) status))
     (overlay-put (nb-cell-input-overlay cell)
 		 'face 'notebook-input-face)
     (overlay-put (nb-cell-output-overlay cell)
@@ -598,8 +617,8 @@ one is created."
 	    (nb-set-colors cell)
 	    (setq string
 		  (buffer-substring (match-beginning 3) (match-end 3)))
-	    (scratch (format "Sending %s from cell '%s'.\n"
-			     string (nb-cell-name cell)))
+	    ;;(scratch (format "Sending %s from cell '%s'.\n"
+	    ;;	     string (nb-cell-name cell)))
 	    (process-send-string
 	     nb-process
 	     (if nb-adjust-input-string
@@ -702,15 +721,15 @@ currently running process. (This doesn't work for the shell notebook.)"
 	    (goto-char (point-max))
 	    (insert string)
 	    (goto-char (point-min))
-	    (scratch "Deleting control characters from output.\n")
+	    ;;(scratch "Deleting control characters from output.\n")
 	    (while (search-forward-regexp "[^\b]\b" nil t)
 	      (delete-region (match-beginning 0) (match-end 0))
 	      (if (> (point) (point-min)) (forward-char -1)))
 	    (goto-char (point-min))
-	    (scratch (format "Got output. Looking for '%s'.\n"
-			     nb-output-regexp))
+	    ;;(scratch (format "Got output. Looking for '%s'.\n"
+	    ;;	     nb-output-regexp))
 	    (while (search-forward-regexp nb-output-regexp nil t)
-	      (scratch "found some.")
+	      ;;(scratch "found some.")
 	      (setq beg (match-beginning 0))
 	      (setq end (match-end 0))
 	      (nb-insert-output
@@ -861,10 +880,10 @@ currently running process. (This doesn't work for the shell notebook.)"
 
 (defun nb-delete-lines (beg string &optional bound noerror)
   "Delete the lines in string from the buffer."
-  (scratch "Deleting input lines from output.\n")
+  ;;(scratch "Deleting input lines from output.\n")
   (let ((start 0) (line) )
     (setq string (concat string "\n"))
-    (scratch (format "string = '%s'" string))
+    ;;(scratch (format "string = '%s'" string))
     ;; Find the next line in string.  First strip of all whitespace at
     ;; the beginning, then strip off all white space at the end.
     (while (and (< start (length string)) ; 
@@ -880,21 +899,59 @@ currently running process. (This doesn't work for the shell notebook.)"
 	  )
 	)
       (setq start (match-end 0))
-      (scratch (format "working on line '%s' (start=%d)\n" line start))
+      ;;(scratch (format "working on line '%s' (start=%d)\n" line start))
       (goto-char beg)
       (if (search-forward line bound noerror)
 	  (progn
-	    (scratch (format "deleting at %d\n" (point)))
+	    ;;(scratch (format "deleting at %d\n" (point)))
 	    (delete-region (- (point) (length line)) (point)))
 	)
       ))
   )
       
-      
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun notebook-to-script (filename)
+  "Convert this notebook file to a shellscript file.
+It prompts for a file FILENAME to which the new shell script is written.
+If the filename is the same as the notebook's file, then a new file is
+created with the suffix '.sh'.
 
-
-
-
+The shell script is made up of all the input cells in the notebook.
+The output cells are ignored, and the text in between has comment
+characters, '#', added to the beginning of each line.
+"
+  (interactive "FOutput shell script to: " )
+  (let ((notebook-name (buffer-file-name))
+	(notebook-buffer (current-buffer))
+	(cell-regexp nb-cell-regexp)	; Keep track of the local variable.
+	(script-buffer) (cell))
+    ;; Set the filename, if it wasn't passed as an argument.
+    (setq script-buffer (find-file filename))
+    (setq filename (buffer-file-name))
+    (if (equal filename notebook-name)
+	(setq filename (concat (file-name-sans-extension filename)
+			       nb-shell-script-extension))
+      )
+    (setq script-buffer (find-file filename))
+    (setq filename (buffer-file-name))
+    (delete-region (point-min) (point-max))
+    (insert-buffer-substring notebook-buffer)
+    (shell-script-mode)
+    (goto-char (point-min))
+    (insert nb-shell-script-line "\n")
+    (previous-line 1)
+					;make everything a comment.
+    (replace-string "\n" "\n# " )
+    (goto-char (point-min))
+    (while (re-search-forward cell-regexp nil t)
+      (setq cell (buffer-substring-no-properties (match-beginning 3)
+						  (match-end 3) ))
+      (goto-char (match-beginning 0))
+      (beginning-of-line)
+      (delete-region  (point) (match-end 0))
+      (insert       (replace-regexp-in-string "\n# " "\n" cell))
+      )
+    ))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

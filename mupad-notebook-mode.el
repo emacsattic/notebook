@@ -39,7 +39,7 @@ In addition to `mupad-notebook-hook', and whatever hooks tex-mode runs,
 
 "
 
-  (scratch "Running mupad notebook mode.\n")
+  ;;(scratch "Running mupad notebook mode.\n")
   (nb-mupad-regexpressions)
   (setq nb-adjust-input-string mupad-notebook-adjust-input-string)
   (setq nb-adjust-output-string mupad-notebook-adjust-output-string)
@@ -80,7 +80,7 @@ In addition to `mupad-notebook-hook', and whatever hooks tex-mode runs,
     (save-excursion
       (let ((cell (nb-find-cell-by-name name))
 	    (file-name))
-	(scratch (format "Adjusting input for cell named '%s'\n" name))
+	;;(scratch (format "Adjusting input for cell named '%s'\n" name))
 	(goto-char (overlay-start (nb-cell-input-overlay cell)))
 	(concat "\"Beg\"  .  \"in " buffer " " name "\";\n"	
 		string ";\n"
@@ -91,9 +91,9 @@ In addition to `mupad-notebook-hook', and whatever hooks tex-mode runs,
 
 (defconst mupad-notebook-adjust-output-string
   (lambda (i-beg i-end o-beg o-end cell)
-    (scratch (format
-	      "Adjusting output. input=<%d,%d> output=<%d,%d> name = %s\n"
-	      i-beg i-end o-beg o-end (nb-cell-name cell)))
+    ;;(scratch (format
+    ;;  "Adjusting output. input=<%d,%d> output=<%d,%d> name = %s\n"
+    ;;      i-beg i-end o-beg o-end (nb-cell-name cell)))
     (let ((input (buffer-substring i-beg i-end))
 	  (beg (make-marker))
 	  (end (make-marker))
@@ -101,31 +101,31 @@ In addition to `mupad-notebook-hook', and whatever hooks tex-mode runs,
       (move-marker beg o-beg)
       (move-marker end o-end)
       (save-excursion                     ;remember point.
-	(scratch (concat "Working on ---->"
-			  (buffer-substring o-beg o-end)
-			  "<---\n"))
+	;;(scratch (concat "Working on ---->"
+	;;	  (buffer-substring o-beg o-end)
+	;;	  "<---\n"))
 	(goto-char end)                   ; strip ending off.
 	(forward-char)
 	(while (re-search-backward "\\(\n.*\"End \"[^\b]*\\)\b" beg t) 
-	  (scratch (format "removing End (%d - %d) '%s'\n"
-			   (match-beginning 1) (match-end 1)
-			   (buffer-substring (match-beginning 1)
-					     (match-end 1))))
+	  ;;(scratch (format "removing End (%d - %d) '%s'\n"
+	  ;;	   (match-beginning 1) (match-end 1)
+	  ;;	   (buffer-substring (match-beginning 1)
+	  ;;			     (match-end 1))))
 	  (delete-region (match-beginning 1) (match-end 1))
-	  (scratch (concat "What's left ---->"
-			   (buffer-substring beg end)
-			   "<---\n"))
+	  ;;(scratch (concat "What's left ---->"
+	  ;;	   (buffer-substring beg end)
+	  ;;	   "<---\n"))
 	  )
-	(scratch "removing prompts ")
+	;;(scratch "removing prompts ")
 	(goto-char beg)                   ; strip all prompts.
 	(while (re-search-forward  "\\s *>> \\$.*\n" end t) 
-	  (scratch "- ")
+	  ;;(scratch "- ")
 	  (delete-region (match-beginning 0) (match-end 0)) )
 	(goto-char beg)                   ; strip all prompts.
 	(while (re-search-forward  "\\s *\\(>>\\|&>\\)\\s *" end t) 
-	  (scratch "- ")
+	  ;;(scratch "- ")
 	  (delete-region (match-beginning 0) (match-end 0)) )
-	(scratch "\nstripping echos.\n")
+	;;(scratch "\nstripping echos.\n")
 	(nb-delete-lines beg input end t)	;strip input echo.
 	(goto-char beg)			; Delete "Begin".
 	(while (re-search-forward "\\(\n\\s *;?\\s *\\)\n" end t)

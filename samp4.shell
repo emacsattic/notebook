@@ -1,4 +1,4 @@
-$Id$   -*- notebook-mode -*-
+$Id$   -*- notebook -*-
 This is a sample Shell Notebook.
 
 
@@ -14,37 +14,66 @@ Some useful keys:
 	C-c C-d -- Delete this cell.
 
 2> uptime  
- 11:23pm  up 54 min,  0 users,  load average: 0.01, 0.13, 0.12
+  9:19pm  up 28 min,  0 users,  load average: 0.40, 0.18, 0.11
 
-3> sleep 10  
+3> sleep 3  
 
-4> who  
+4>  who
 
 This is some text.
-7> /bin/ls  
-COPYING        README			notebook-mode.el	 samp5-b.matlab
-Documentation  TODO			notebook.texi		 samp5.matlab
-INSTALL        debug-notebook.el	octave-notebook-mode.el  samp5.tex
-Makefile       matlab-notebook-mode.el	samp.mu			 samp6.shell
-RCS	       mupad-notebook-mode.el	samp4.shell		 version.texi
+7> 
+/bin/ls  
+ChangeLog		 notebook-1.2.tgz	  #samp4.shell#
+COPYING			 notebook.html		  samp4.shell
+CVS			 notebook.info		  samp5-b.matlab
+debug-notebook.el	 notebook-mode.el	  samp5.matlab
+INSTALL			 notebook.texi		  samp6.shell
+Makefile		 octave-notebook-mode.el  samp7.fs
+matlab-notebook-mode.el  README			  samp.mu
+mupad-notebook-mode.el	 #samp4.sh#		  TODO
+notebook-1.2		 samp4.sh		  version.texi
 
 
 
 
-36>     (no output yet)
-1>     (no output yet)
-5>     (no output yet)
-6>     (no output yet)
-37>     (no output yet)
-38>     (no output yet)
+36>  echo "one"
+uptime
+echo "hello" 
+one
+  9:22pm  up 31 min,  0 users,  load average: 0.48, 0.23, 0.13
+hello
+
+9> dog="this is some text"
+echo this is dog: $dog
+
+
+this is dog: this is some text
+
+10> echo $dog  
+this is some text
+
+1>  dog  
+bash: dog: command not found
+
+
 35> ls  
-COPYING        README			notebook-mode.el	 samp5-b.matlab
-Documentation  TODO			notebook.texi		 samp5.matlab
-INSTALL        debug-notebook.el	octave-notebook-mode.el  samp5.tex
-Makefile       matlab-notebook-mode.el	samp.mu			 samp6.shell
-RCS/	       mupad-notebook-mode.el	samp4.shell		 version.texi
+ChangeLog		 notebook-1.2.tgz	  #samp4.shell#
+COPYING			 notebook.html		  samp4.shell
+CVS			 notebook.info		  samp5-b.matlab
+debug-notebook.el	 notebook-mode.el	  samp5.matlab
+INSTALL			 notebook.texi		  samp6.shell
+Makefile		 octave-notebook-mode.el  samp7.fs
+matlab-notebook-mode.el  README			  samp.mu
+mupad-notebook-mode.el	 #samp4.sh#		  TODO
+notebook-1.2		 samp4.sh		  version.texi
 
-39>     (no output yet)
+39>   
+
+5>   
+
+6>   
+
+8>     (no output yet)
 
 
 

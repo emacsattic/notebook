@@ -36,7 +36,7 @@ In addition to `matlab-notebook-hook', and whatever hooks tex-mode runs,
 
 "
 
-  (scratch "Running matlab notebook mode.\n")
+  ;;(scratch "Running matlab notebook mode.\n")
   (nb-octave-regexpressions)
   (setq nb-adjust-input-string octave-notebook-adjust-input-string)
   (setq nb-adjust-output-string octave-notebook-adjust-output-string)
@@ -85,8 +85,8 @@ In addition to `matlab-notebook-hook', and whatever hooks tex-mode runs,
     (save-excursion
       (let ((cell (nb-find-cell-by-name name))
 	    (file-name))
-	(scratch (format "Adjusting input for cell named '%s'\n" name))
-	(scratch (format "which is %s\n" cell))
+	;;(scratch (format "Adjusting input for cell named '%s'\n" name))
+	;;(scratch (format "which is %s\n" cell))
 	(goto-char (overlay-start (nb-cell-input-overlay cell)))
 	(if (not (looking-at octave-function-regexp)) 
 	    ;; If it's not a function, it's regular input, so send it along.
@@ -110,9 +110,9 @@ In addition to `matlab-notebook-hook', and whatever hooks tex-mode runs,
 
 (defconst octave-notebook-adjust-output-string
   (lambda (i-beg i-end o-beg o-end cell)
-    (scratch (format
-	      "Adjusting output. input=<%d,%d> output=<%d,%d> name = %s\n"
-	      i-beg i-end o-beg o-end (nb-cell-name cell)))
+    ;;(scratch (format
+    ;;   "Adjusting output. input=<%d,%d> output=<%d,%d> name = %s\n"
+    ;;     i-beg i-end o-beg o-end (nb-cell-name cell)))
     (let ((input (buffer-substring i-beg i-end))
 	  (beg (make-marker))
 	  (end (make-marker))
@@ -122,16 +122,16 @@ In addition to `matlab-notebook-hook', and whatever hooks tex-mode runs,
       (save-excursion                     ;remember point.
 	(goto-char end)                   ; strip ending off.
 	(while (re-search-backward ".*fprintf.*\\f.*\n" beg t) 
-	  (scratch (format "removing printf (%d - %d\n"
-			   (match-beginning 0) (match-end 0)))
+	  ;;(scratch (format "removing printf (%d - %d\n"
+	  ;;	   (match-beginning 0) (match-end 0)))
 	  (delete-region (match-beginning 0) (match-end 0))
 	  )
-	(scratch "removing prompts ")
+	;;(scratch "removing prompts ")
 	(goto-char beg)                   ; strip all prompts.
 	(while (re-search-forward  "\\s *octave:[0-9]+>\\s *" end t) 
-	  (scratch "- ")
+	  ;;(scratch "- ")
 	  (delete-region (match-beginning 0) (match-end 0)) )
-	(scratch "\nstripping echos.\n")
+	;;(scratch "\nstripping echos.\n")
 	(nb-delete-lines beg input end t)	;strip input echo.
 	(goto-char beg)			; Delete blank lines.
 	(while (re-search-forward "\\(\n\\s *\\)\n" end t)

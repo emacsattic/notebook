@@ -81,6 +81,14 @@
   (nb-kill-process)
   )
 
+(defun debug-notebook-to-script ()
+  "" (interactive)
+  (global-set-key [f12] 'debug-notebook-to-script)
+  (set-buffer "notebook-mode.el")
+  (eval-buffer)
+  (find-file "samp4.shell")
+  (notebook-to-script "samp4.sh")
+  )
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -119,43 +119,51 @@ following to my auto-mode-alist:
 There are several commands you can use to manipulate cells:
 
 @table @kbd
-@item C-@key{RET} 
-@kindex @kbd{C-@key{RET}}
+@item C-@key{RET}  
+@kindex @kbd{C-@key{RET}} nb-send-input
 Sends the cell at (or just before) point to the sub-process.  If the
 process is not running, it is started.  
 
 @item M-@key{TAB} 
-@kindex @kbd{M-@key{TAB}}
+@kindex @kbd{M-@key{TAB}} nb-next-cell
 Move point the the beginning of the next cell's input.  If there is no
 cell after point, a new cell is created.
 
 @item M-@key{RET} 
-@kindex @kbd{M-@key{RET}}
+@kindex @kbd{M-@key{RET}} nb-send-input-forward
 First enter the current cell, and then move to the next cell. This is
 the same as typing @kbd{C-@key{RET} M-@key{TAB}}.
 
 @item C-c C-n
-@kindex @kbd{C-c C-n}
+@kindex @kbd{C-c C-n} nb-create-cell
 Create a new cell at point.  If point is currently in a cell, a new
 cell is created on the next line.
 
 @item C-c C-r
-@kindex @kbd{C-c C-r}
+@kindex @kbd{C-c C-r} nb-send-input-region
 Send all cells in the current region to the process.  If the process
 is not running, it is started first.
 
 @item C-c C-b
-@kindex @kbd{C-c C-b}
+@kindex @kbd{C-c C-b} nb-send-input-buffer
 Send all cells in the buffer to the process.  If the process
 is not running, it is started first.
 
 @item C-c C-c
-@kindex @kbd{C-c C-c}
+@kindex @kbd{C-c C-c} nb-kill-process
 Kill the process.
 
 @item C-c C-s
-@kindex @kbd{C-c C-s}
+@kindex @kbd{C-c C-s} nb-start-process
 Re-start the process. 
+
+@item C-c C-f
+@kindex @kbd{C-c C-f} notebook-to-script
+Create a shell script from the notebook.
+The shell script is made up of all the input cells in the notebook.
+The output cells are ignored, and the text in between has comment
+characters, '#', added to the beginning of each line.
+
 
 @end table
 

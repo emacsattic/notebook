@@ -1,0 +1,14 @@
+2002-10-15  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* all code: commented out debugging statements 'scratch'.
+
+	* notebook-mode.el (nb-adjust-input-string): The function now
+	removes extra semicolons, which used to confuse bash.
+
+2002-10-15  Fred Gylys-Colwell  <fredgc@users.sourceforge.net>
+
+	* notebook-mode.el: Added 'notebook-to-script' which converts a
+	notebook into a shell script.
+
+	
+
