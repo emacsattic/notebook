@@ -477,7 +477,7 @@ the start of the cell text.  The new cell is returned."
 	(overlay-put prompt 'cell cell) 
 	(overlay-put  input 'cell cell) 
 	(overlay-put output 'cell cell) 
-	(run-hook-with-args nb-extra-cell-initialize cell)
+	(run-hook-with-args 'nb-extra-cell-initialize cell)
 	cell				;return the cell.
 	)
       ))

@@ -1,3 +1,43 @@
+2003-03-19  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* notebook-mode.el:
+	Added a hook 'nb-extra-cell-initialize' to the initialization code for
+	cells. This can be used by sub-modes to add some extra information
+	to each cell 
+	when it is created.
+
+2003-03-07  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* octave-notebook-mode.el, notebook-mode.el:
+	Adjusted code so that buffers (and files) with white space in
+	their names don't break things too much.
+
+2003-02-22  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* .cvsignore, x-html.shell, x-plain.shell, x-plain2.shell, x-tex.shell, x-tex2.shell, x-tex3.shell:
+	Some sample files -- used for debugging.
+
+	* notebook-mode.el:
+	Modifed the way notebook-to-tex cleans up input and output regions.
+
+2003-02-21  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* notebook-mode.el:
+	Cleaned up some backwards compatibility, and interaction with AucTeX.
+
+	* version.texi, TODO, samp8.octave, samp7.fs, samp4.shell, README, notebook.texi, notebook.html, Makefile:
+	Notebook mode is now in version 2.0.  These files have been modified to agree
+	with this change.
+
+	* octave-notebook-mode.el:
+	Changed octave-notebook-mode to agree with version 2.0 of notebook-mode.
+
+	* mupad-notebook-mode.el:
+	Changed mupad-notebook-mode to agree with version 2.0 of notebook-mode.
+
+	* matlab-notebook-mode.el:
+	Changed matlab-notebook-mode to agree with version 2.0 of notebook-mode.
+
 2003-02-19  Fred Gylys-Colwell  <fredgc@member.ams.org>
 
 	* notebook-mode.el:
