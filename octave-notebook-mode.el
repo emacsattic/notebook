@@ -3,21 +3,10 @@
 
 (provide 'octave-notebook-mode)
 (require 'notebook-mode)
-(require 'tex-mode)
-
-(defvar octave-notebook-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map tex-mode-map)
-    (nb-setup-keymap map)
-    (define-key map "\C-c\C-f" 'tex-octave-file)
-    (define-key map "\C-c>" 'octave-toggle-prompt)
-    (define-key map [menu-bar tex tex-file]
-      '("Run TeX on Notebook" . tex-octave-file))
-    map)
-  "The key map for octave notebooks.")
+(require 'octave-mod)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-derived-mode octave-notebook-mode tex-mode "Octave"
+(defun octave-notebook-mode ()
   "Major mode for a Octave notebook.  It is a combination of TeX mode
 and Notebook mode.
 
@@ -25,30 +14,37 @@ See documentation of `notebook-mode` for a description of a notebook,
 and cells.
 
 Special commands:
-\\{octave-notebook-mode-map}
+\\[octave-notebook-mode-map]
 
-See documentation for tex-mode for other commands.
-
-In addition to `octave-notebook-hook', and whatever hooks tex-mode runs, 
-`common-notebook-mode-hook' is also run.
+In addition to `octave-notebook-hook', and whatever hooks the text mode runs, 
+`notebook-mode-hook' is also run.
 
 "
-
-  ;;(scratch "Running octave notebook mode.\n")
+  (interactive)
+  (kill-all-local-variables)
+  (nb-choose-text-mode)	;; pick a text mode (to inherit font-locking, etc).
   (nb-octave-regexpressions)
   (setq nb-adjust-input-string octave-notebook-adjust-input-string)
   (setq nb-adjust-output-string octave-notebook-adjust-output-string)
   (setq nb-start-process octave-start-process)
-  (notebook-mode-initialize)
-  (setq indent-tabs-mode nil)
-  (setq nb-process (nb-find-octave-process))
+  (notebook-mode-initialize 'octave-mode nil) ; this also sets up font-lock mode.
+  (setq major-mode 'octave-notebook-mode)
+  (setq mode-name "Octave Notebook")
+  (use-local-map			; M: notebook modes need the special keys.
+   (nb-setup-keymap (copy-keymap (current-local-map))))
+
+  (setq indent-tabs-mode nil)		; PENDING: needed?
+  (setq nb-process (nb-find-process "octave"))
   (if nb-process
-    (setq mode-line-process (format ": %s"
-				    (process-name nb-process)))
-    )
-  ) 
+    (setq mode-line-process (format ": %s" (process-name nb-process))))
+  (run-hooks 'notebook-mode-hook 'octave-notebook-mode-hook)
+  )
 
+;;
+(defvar octave-notebook-mode-hook nil
+  "If this is non-nil, it is the hook that's run for any shell notebook.")
 
+;;
 (defun nb-octave-regexpressions ()
   "Set regular expressions for octave like mode."
   (let ( (name "\\([^ \t\n\b\f)(]*\\)")	; Possible name of function or cell.
@@ -73,7 +69,7 @@ In addition to `octave-notebook-hook', and whatever hooks tex-mode runs,
     ))
 
 
-(defconst octave-function-regexp
+(defconst octave-function-regexp nil
   "This matches the definition of a function.")
 
 (defconst octave-notebook-adjust-input-string
@@ -81,8 +77,6 @@ In addition to `octave-notebook-hook', and whatever hooks tex-mode runs,
     (save-excursion
       (let ((cell (nb-find-cell-by-name name))
 	    (file-name))
-	;;(scratch (format "Adjusting input for cell named '%s'\n" name))
-	;;(scratch (format "which is %s\n" cell))
 	(goto-char (overlay-start (nb-cell-input-overlay cell)))
 	(if (not (looking-at octave-function-regexp)) 
 	    ;; If it's not a function, it's regular input, so send it along.
@@ -131,8 +125,6 @@ In addition to `octave-notebook-hook', and whatever hooks tex-mode runs,
 	      (delete-region (match-beginning 1) (match-end 1))
 	      )
 	  )
-	;;String off echos: 
-	;; octave doesn't echo: XXX  (nb-delete-lines beg input end t)
 	(goto-char beg)		; Delete blank lines.
 	(while (re-search-forward "\\(\n\\s *\\)\n" end t)
 	  (delete-region (match-beginning 1) (match-end 1)))
@@ -140,8 +132,7 @@ In addition to `octave-notebook-hook', and whatever hooks tex-mode runs,
 	(if (re-search-forward "error:" end t) ;Warning, there was an error.
 	    (progn
 	      (nb-set-cell-status cell 'error)
-	      (nb-set-colors cell)
-	      ))
+ 	      ))
 	(goto-char beg)
 	(insert " ")
 	(goto-char end)
@@ -166,27 +157,11 @@ In addition to `octave-notebook-hook', and whatever hooks tex-mode runs,
   "Adjust the output text from octave."
   )
 
-(defun nb-find-octave-process ()
-  "Find a octave process that is already running. If there is none,
-return nil."
-  (let ((list (process-list))		;Get a list of processes.
-	(proc) (octave nil) (command))
-    (while (and list (not octave))		;Look at each one.
-      (setq proc (car list))
-      (setq command (process-name proc))
-      (if (string-match "octave" command)
-	  (setq octave proc))
-      (setq list (cdr list))
-      )
-    octave				; Return the result of the search.
-    )
-  )
-
 (defconst octave-start-process
   (lambda (&optional old)
     (interactive)
-    (if (and old (nb-find-octave-process))
-	(setq nb-process (nb-find-octave-process))
+    (if (and old (nb-find-process "octave"))
+	(setq nb-process (nb-find-process "octave"))
       (save-excursion
 	(let ((buff (generate-new-buffer "*octave*"))
 	      (notebook-buffer (current-buffer))
@@ -211,115 +186,6 @@ return nil."
 process will be started, even if an old one already exists.  "
   )
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Convert to TeX and run TeX on the file:
-
-(defun octave-prompt-short ()
-  "Set the default to be short prompts."
-  (interactive)
-  (setq nb-empty-cell-format
-	(concat "\b>   \b\n(no output yet)\b\n"))
-  )
-(defun octave-prompt-long ()
-  "Set the default to be short prompts."
-  (interactive)
-  (setq nb-empty-cell-format
-	(concat "\b>>  \b\n(no output yet)\b\n"))
-  )
-
-(defun octave-toggle-prompt (pos)
-  "Give the cell at POS a short prompt."
-  (interactive "d")
-  (save-excursion
-    (let ((cell (nb-find-cell-by-position pos nil)) (prompt) )
-      (if (equal cell nil) ()		; return if no cell.
-	(goto-char (nb-cell-begin cell))
-	(if (not (looking-at nb-cell-regexp))
-	    (error "Cell %s doesn't look like an I/O cell." name))
-	(setq prompt (nb-cell-prompt-overlay cell))
-	(goto-char (match-beginning 1))
-	(overlay-put prompt 'modification-hooks  nil)
-	(if (looking-at ">>") 
-	    (delete-char 1)
-	  (insert ">")
-	  )
-	(overlay-put prompt 'modification-hooks 
-		     (nb-make-hook 'nb-modify-prompt cell))
-	)))
-  )
-
-;; This starts tex-mode, and then modifies it a bit.
-(defun nb-start-tex-mode ()		
-  (tex-mode)				; run tex.
-  )
-
-
-(defun tex-octave-file ()
-  "Convert this file to a TeX file, and run the command tex-file on it."
-  (interactive)
-  (let ((octave-name (buffer-file-name))
-	(octave-buffer (current-buffer))
-	(file-dir (file-name-directory (buffer-file-name)))
-	(tex-name)
-	(cell-regexp nb-cell-regexp)	; Keep track of the local variable.
-	(tex-buffer) )
-    (setq tex-name (concat (file-name-sans-extension octave-name) ".tex"))
-    (setq tex-buffer (find-file-noselect tex-name))
-    (save-excursion
-      (set-buffer tex-buffer)
-      (delete-region (point-min) (point-max))
-      (insert-buffer-substring octave-buffer)
-      (goto-char (point-min))		; Get rid of special characters
-      (while (re-search-forward cell-regexp nil t)
-	;; Check to see if this is short input:
-	(if (equal ">" (buffer-substring (match-beginning 1)
-					(match-end 1)))
-	    (let ((body (buffer-substring ;short form.
-			(match-beginning 4) (match-end 4))))
-	      (goto-char (- (match-end 0) 1))
-	      (delete-char 1)
-	      (if (equal "" body)
-		  (insert "}")		; no output
-		(insert ")} " ))	; there was output preface it.
-	      (goto-char (match-end 3))
-	      (delete-char 1)
-	      (if (equal "" body) ()	;no output
-		(insert " \\, (" ))	;there was output preface it.
-	      (goto-char (match-beginning 0))
-	      (delete-region  (match-beginning 0) (match-end 1))
-	      (insert "{ \\tt ")
-	      )
-					; long form.
-	  (goto-char (- (match-end 0) 1))
-	  (delete-char 1)
-	  (insert "\\end{verbatim}")
-	  (goto-char (match-end 3))
-	  (delete-char 1)
-	  (goto-char (match-beginning 0))
-	  (delete-char 1)
-	  (insert "\\begin{verbatim}")
-	  ) )
-      (goto-char (point-min))		; join nearby cells
-      (while (re-search-forward 
-	      "\\\\end{verbatim}[ \t]*\n\\\\begin{verbatim}"
-	      nil t)
-	(goto-char (match-beginning 0))
-	(delete-region (match-beginning 0) (match-end 0) )
-	(insert "\n"))
-      ;; Now run TeX on it: (this is taken from tex-file...)
-      (save-some-buffers)
-      (if (tex-shell-running)
-	  (tex-kill-job)
-	(tex-start-shell))
-      (tex-send-command tex-shell-cd-command file-dir)
-      (tex-send-command tex-command tex-name)
-      (setq tex-last-buffer-texed (current-buffer))
-      (setq tex-print-file (buffer-file-name))
-      )
-    (tex-display-shell)
-    )
-  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
