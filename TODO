@@ -27,3 +27,11 @@ Figure out the difference between defvar and defconst.
 -----------
 Add a syntax table that gets turns \b and ^H into a non-whitespace character.
 
+-----------
+Change find-cell-by-position so that it creates a new cell if the cell is
+there, but it's not on the list.
+
+-----------
+Maybe have font-lock verify that the cell is there?
+
+-----------

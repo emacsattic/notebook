@@ -10,7 +10,7 @@
 (defvar octave-notebook-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tex-mode-map)
-    (mb-setup-keymap map)
+    (nb-setup-keymap map)
     (define-key map "\C-c\C-f" 'tex-octave-file)
     (define-key map "\C-c>" 'octave-toggle-prompt)
     (define-key map [menu-bar tex tex-file]

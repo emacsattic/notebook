@@ -13,7 +13,7 @@
 (defvar matlab-notebook-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tex-mode-map)
-    (mb-setup-keymap map)
+    (nb-setup-keymap map)
     (define-key map "\C-c\C-f" 'tex-matlab-file)
     (define-key map "\C-c>" 'matlab-toggle-prompt)
     (define-key map [menu-bar tex tex-file]

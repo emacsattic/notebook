@@ -247,9 +247,6 @@ if that value is non-nil."
 (defun nb-find-cell-by-name (name)
   "Search the cell list for the cell named NAME cell."
   (scratch (format "Trying to find cell %s\n" name))
-;;  (if name (nb-find-cell-by-name-part2 nb-cell-list name)
-;;    ()))
-
   (let ((result ()) (list nb-cell-list))
     (while list
       (if (not (equal name (nb-cell-name (car list))))
@@ -260,17 +257,6 @@ if that value is non-nil."
       )
     result				;return result from the loop.
     ) )
-
-;; PENDING: remove this, it's no longer used. 
-(defun nb-find-cell-by-name-part2 (list name)
-  (if (equal '() list)
-      ()
-    (scratch (format "comparing '%s' to cell '%s'\n"
-		     name (nb-cell-name (car list))))
-    (if (equal (nb-cell-name (car list)) name)
-	(car list)
-      (nb-find-cell-by-name-part2 (cdr list) name) ; recursion!
-      )))
 
 (defun nb-find-cell-by-position (pos strict)
   "Find the cell which contains the position POS.

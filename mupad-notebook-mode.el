@@ -14,7 +14,7 @@
 (defvar mupad-notebook-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tex-mode-map)
-    (mb-setup-keymap map)
+    (nb-setup-keymap map)
     (define-key map "\C-c\C-f" 'tex-mupad-file)
     (define-key map [menu-bar tex tex-file]
       '("Run TeX on Notebook" . tex-mupad-file))
