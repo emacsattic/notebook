@@ -10,25 +10,12 @@ and might not be in pairs.  This should be fixed.  Or there should be a clever
 work around.
 
 -----------
-Fix problem with flyspell.
-
+Document creation of functions in matlab/octave modes.  
 -----------
 Port to xemacs if possible.
 
 -----------
-Question: should notebook be a derived mode of something, or should each other
-mode just be derived from another, with notebook features added.  Like matlab
-is just tex-mode with other stuff added.  
-
------------
-Verify that all variables  that should be buffer local are in fact local.
-
------------
 Add a syntax table that gets turns \b and ^H into a non-whitespace character.
-
------------
-Change find-cell-by-position so that it creates a new cell if the cell is
-there, but it's not on the list.
 
 -----------
 Maybe have font-lock verify that the cell is there?  (read up on font-lock-mode).
