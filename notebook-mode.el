@@ -907,25 +907,17 @@ If there is no cell at or before this position, nothing is sent."
 		  (buffer-substring (match-beginning 3) (match-end 3)))
 	    ;;(scratch (format "Sending %s from cell '%s'.\n"
 	    ;;	     string (nb-cell-name cell)))
+	    (setq string  (if nb-adjust-input-string
+			      (funcall nb-adjust-input-string string
+				       (buffer-name) (nb-cell-name cell))
+			    (string)))
 	    (if (boundp 'notebook-debug-input-buffer)
 		(save-excursion
 		  (set-buffer notebook-debug-input-buffer)
 		  (goto-char (point-max))
-		  (insert (concat "<<" string ">>  -> <<"
-				  (if nb-adjust-input-string
-				      (funcall nb-adjust-input-string string
-					       (buffer-name) (nb-cell-name cell))
-				    (string))
-				  ">>"))
+		  (insert (concat "<<" string ">>"))
 		  ))			; end debugging statements.
-
-	    (process-send-string
-	     nb-process
-	     (if nb-adjust-input-string
-		 (funcall nb-adjust-input-string string
-			  (buffer-name) (nb-cell-name cell))
-	       (string))
-	     )
+	    (process-send-string nb-process string)
 	    ))))
   )
 
