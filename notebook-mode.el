@@ -41,7 +41,8 @@
 ;;
 (defvar notebook-mode-hook nil
   "If this is non-nil, it is the hook that's run for any notebook.")
-(defvar notebook-default-text-mode 'tex-mode
+(defvar notebook-default-text-mode
+  (or (cdr (assoc "\\.tex$" auto-mode-alist)) 'tex-mode)
   "The default base-mode to use for text regions in a new notebook.")
 (defvar notebook-text-font-lock-hook nil
   "Run this before initializing font lock for the text region.")
@@ -138,13 +139,13 @@ currently running process. (This doesn't work for the shell notebook.)"
 
 
 ;; Here are some variables that make up regular expressions.
-(let ( (name "\\([^ \t\n\b\f]*\\)")	; Possible name regular expression.
+(let ( (name "\\([^ \t\n\b\f>]*\\)")	; Possible name regular expression.
        (ws "\\s *")			; Whitespace.
        (body "\\([^\b\f]*\\)")		; Body of input or output region.
        )
 
   (defconst nb-cell-regexp 
-    (concat "\b\\(" name ">\\)"		; Prompt and name.
+    (concat "\b\\(" name ">>?\\)"	; Prompt and name.
 	    body  "\b"   body "\b"	; input and output.
 	    )
     "This is the regular expression which matches a i/o cell.
@@ -161,15 +162,15 @@ boundary for this input.")
   (make-variable-buffer-local 'nb-cell-regexp)
 
 
-  (defconst nb-empty-cell-format 
-    (concat "\b%s>  \b  (no output yet)\b\n")
+  ;; Note: The default has changed in version 2.0: the cell name is no longer
+  ;; embedded into the prompt.
+  (defconst nb-empty-cell-format "\b>>  \b  (no output yet) \b\n"
     "This is inserted as an initial empty cell.  It can use the name of the
 cell if it wishes (e.g. \"\bin(%s) =  \n< >\b\").  "
     )
 
   (make-variable-buffer-local 'nb-empty-cell-format)
 
-  
   (defconst nb-output-regexp 
     (concat
      "\fBegin" ws			; A keywork
@@ -196,12 +197,13 @@ used for the input. A form feed works nicely as a specail marker.
 ;;; Cell Manipulation.
 
 ;; A cell is a list of
-;; a name (or number)
-;; a status, one of: 'entered, 'unentered, 'processed, 'error
-;; a begining marker.
-;; an overlay for the prompt. 
-;; an overlay for the input. 
-;; an overlay for the output.
+;; (  a name (or number)
+;;    a status, one of: 'entered, 'unentered, 'processed, 'error
+;;    a begining marker.
+;;    an overlay for the prompt. 
+;;    an overlay for the input. 
+;;    an overlay for the output.
+;; )
 (defun nb-cell-name (cell) (if cell (car cell) nil))
 (defun nb-cell-status (cell) (nth 1 cell))
 (defun nb-cell-begin (cell) (nth 2 cell))
@@ -291,7 +293,7 @@ a cell at all.
 
 (defun notebook-mode-initialize (&optional input-mode output-mode)
   "This initializes notebook-mode and its variants."
-  (message "Initializing notebook mode.") 
+  ;; (message "Initializing notebook mode.") 
   (put 'funny-mode 'mode-class 'special) ; This mode uses special text.
   (setq buffer-display-table nb-display-table) ; Use brackets for characters.
   (setq nb-cell-list nil)
@@ -308,8 +310,10 @@ a cell at all.
   (setq paragraph-separate		; But it can't separate one.
 	(concat paragraph-separate
 		))
+  ;; Now, set up the font-lock mode.
   (nb-font-lock-setup input-mode output-mode)
-  (run-hooks 'common-notebook-mode-hook)
+  ;; PENDING: This shouldn't be turned on unless font-lock-global something is
+  ;; PENDING: set.  
   )
 
 ;;
@@ -327,7 +331,8 @@ a cell at all.
   (define-key keymap "\C-c\C-d"     'nb-delete-cell-and-text)
   (define-key keymap "\C-y"     'nb-yank)
   (define-key keymap "\ey"     'nb-yank-pop)
-  (define-key keymap "\C-c\C-f"     'notebook-to-script)
+  (define-key keymap "\C-c>"     'nb-toggle-prompt)
+  (define-key keymap "\C-c\C-f" nb-text-mode-converter)
   (define-key keymap
     [menu-bar notebook] (cons "Notebook" (make-sparse-keymap "Notebook")))
   (define-key keymap [menu-bar notebook nb-send-input]
@@ -346,6 +351,12 @@ a cell at all.
     '("Delete Cell" . nb-delete-cell-and-text))
   (define-key keymap [menu-bar notebook notebook-to-script]
     '("Create Shell Script" . notebook-to-script))
+  (define-key keymap [menu-bar notebook notebook-to-tex]
+    '("Create TeX File From Notebook" . notebook-to-tex))
+  (define-key keymap [menu-bar notebook notebook-to-html]
+    '("Create HTML File From Notebook" . notebook-to-html))
+  (define-key keymap [menu-bar notebook notebook-to-plain-text]
+    '("Create Plain Text File From Notebook" . notebook-to-plain-text))
   keymap
   )
 
@@ -359,7 +370,7 @@ a cell at all.
 	(setq beg end)
 	(setq end beg))
     )
-  (message "Initializing cells between %d and %d." beg end)
+  ;; (message "Initializing cells between %d and %d." beg end)
   (save-excursion
     (goto-char beg)
     (while (re-search-forward nb-cell-regexp end t)
@@ -509,8 +520,8 @@ is created on the following line."
 
 (defun nb-font-lock-setup (input-mode output-mode)
   "Turn on the alternate fontlock mode for a notebook."
-  (message "font-lock-setup mod=%s in=%s out=%s" (buffer-modified-p)
-	   input-mode output-mode)
+;;   (message "font-lock-setup mod=%s in=%s out=%s" (buffer-modified-p)
+;; 	   input-mode output-mode)
   (add-hook (make-local-variable 'change-major-mode-hook) 'nb-turnoff-font-lock)
   (if (not (equal font-lock-fontify-region-function 'nb-fontify-region))
       (set (make-local-variable 'original-fontify)
@@ -524,19 +535,19 @@ is created on the following line."
   ;; ----------------------text regions: 
   (set (make-local-variable 'nb-text-font-lock-data)
        (nb-font-lock-set-defaults nil notebook-text-font-lock-hook nil nil))
-  (message "nb-text-data found.")
+  ;; (message "nb-text-data found.")
 
   ;; ----------------------input regions: 
   (set (make-local-variable 'nb-input-font-lock-data)
        (nb-font-lock-set-defaults input-mode notebook-input-font-lock-hook
 				  'notebook-input-face t))
-  (message "found nb-input-data")
+  ;; (message "found nb-input-data")
 
   ;; ----------------------- output regions:
   (set (make-local-variable 'nb-output-font-lock-data)
        (nb-font-lock-set-defaults output-mode notebook-output-font-lock-hook
 				  'notebook-output-face t))
-  (message "found nb-output-data")
+  ;; (message "found nb-output-data")
 
   ;; put back the original data.
   (nb-restore nb-font-lock-variables nb-text-font-lock-data)
@@ -545,7 +556,7 @@ is created on the following line."
   ;; Use the new fontification.
   ;;(font-lock-fontify-region (point-min) (point-max))
   (font-lock-mode 1)			;PENDING: put somewhere else???
-  (message "end font-lock-setup mod=%s" (buffer-modified-p))
+  ;; (message "end font-lock-setup mod=%s" (buffer-modified-p))
   )
 ;;
 (defun nb-font-lock-set-defaults ( hook1 hook2 face own-buffer)
@@ -554,20 +565,19 @@ is created on the following line."
     (let ((temp-buffer (if own-buffer (generate-new-buffer "notebook-temp-buf")))
 	  (data))
       (if own-buffer (set-buffer temp-buffer))
-      (message "temp-buffer = %s, hook = %s %s" temp-buffer hook1 hook2)
+      ;; (message "temp-buffer = %s, hook = %s %s" temp-buffer hook1 hook2)
       (setq font-lock-set-defaults nil)	; tell font-lock it hasn't set defaults yet.
       (setq nb-background-face face)
-      (message "Running hooks %s %s" hook1 hook2)
+      ;; (message "Running hooks %s %s" hook1 hook2)
       (run-hooks 'hook1 'hook2)
-      (message "Done with hooks")
+      ;; (message "Done with hooks")
       (unless nb-syntax-table (setq nb-syntax-table (syntax-table)))
-      (message "Setting the defaults....")
+      ;; (message "Setting the defaults....")
       (font-lock-mode t)
-      ;; (nbd-font-lock-set-defaults)	; set defaults.
-      (message "after set-defaults, font-lock-keywords = %S" font-lock-keywords)
+      ;; (message "after set-defaults, font-lock-keywords = %S" font-lock-keywords)
       (setq data (nb-store nb-font-lock-variables))
       (if own-buffer (kill-buffer temp-buffer))
-      (message "Done with kill buffer")
+      ;; (message "Done with kill buffer")
       data)))
 ;;
 (defun nb-turnoff-font-lock ()
@@ -584,7 +594,7 @@ is created on the following line."
 (defun nb-fontify-region (beg end &optional loudly)
   "This is called by font-lock mode to fontify a region.  It uses the
 default, and it uses `nb-fontify-cell-part' for fontifying input/output." 
-  (message "My fontify-region  %d %d mod=%s" beg end (buffer-modified-p))
+  ;; (message "My fontify-region  %d %d mod=%s" beg end (buffer-modified-p))
   (let ((old-data (nb-store nb-font-lock-variables))
 	(old-syntax (syntax-table))
 	;;(inhibited (nb-store nb-save-vars)) 
@@ -602,7 +612,7 @@ default, and it uses `nb-fontify-cell-part' for fontifying input/output."
 		(setq min (+ 1 (overlay-end (nb-cell-output-overlay cell))))
 	      (setq min (point-min)))
 	    (while (< beg end)
-	      (message "looping with beg = %d" beg)
+	      ;; (message "looping with beg = %d" beg)
   	      ;; If we are in the input part, also do the prompt part (just in case)
 	      ;; *** First do the prompt part of the cell.
 	      (when (equal type 'prompt)
@@ -674,21 +684,6 @@ Most of this is taken from `font-lock-default-fontify-region'.
 
   (with-syntax-table (or font-lock-syntax-table
 			 nb-syntax-table)
-    ;;   (if font-lock-syntax-table
-    ;;       (progn
-    ;; 	(set-syntax-table font-lock-syntax-table)
-    ;; 	(debug-syntax-and-face "picked font-lock-table: " (syntax-table))
-    ;; 	)
-    ;;     (set-syntax-table nb-syntax-table)
-    ;;     (debug-syntax-and-face "picked nb-table: " (syntax-table))
-    ;;     )
-    ;;(debug-syntax-and-face "current table: " (syntax-table))
-    ;; (message "keyword list = %s" font-lock-keywords)
-
-    ;; First, don't let font-lock look before the current region.
-    ;; XXX probably not needed if font-lock-beginning-of-syntax-function is set.
-    ;; XXX (set-marker font-lock-cache-position (max font-lock-cache-position min))
-    
     ;; check to see if we should expand the beg/end area for
     ;; proper multiline matches
     (when (and font-lock-multiline
@@ -715,7 +710,7 @@ Most of this is taken from `font-lock-default-fontify-region'.
       ;; (debug-syntax-and-face "after keywords table: " (syntax-table))
       )
     (unless font-lock-keywords-only
-      (nbd-font-lock-fontify-syntactically-region beg end loudly))
+      (font-lock-fontify-syntactically-region beg end loudly))
     (font-lock-fontify-keywords-region beg end loudly)
     ;; add the background:
     ;; (debug-syntax-and-face  "almost end of cell part: " (syntax-table) )
@@ -732,16 +727,16 @@ Most of this is taken from `font-lock-default-fontify-region'.
 ;; This is the list of all the variables that need to be saved.
 ;; I hope I got them all...
 (defconst nb-font-lock-variables
-  '(font-lock-set-defaults
-    font-lock-cache-state font-lock-cache-position
-    font-lock-fontified
-    font-lock-multiline font-lock-keywords font-lock-keywords-only
-    font-lock-keywords-case-fold-search font-lock-syntax-table
-    font-lock-syntactic-keywords
-    major-mode
-    nb-background-face
-    nb-syntax-table
-    )
+  '( major-mode
+     font-lock-set-defaults
+     font-lock-cache-state font-lock-cache-position
+     font-lock-fontified
+     font-lock-multiline font-lock-keywords font-lock-keywords-only
+     font-lock-keywords-case-fold-search font-lock-syntax-table
+     font-lock-syntactic-keywords
+     nb-background-face
+     nb-syntax-table
+     )
   "The list of variables that are saved when we use the alternate font-lock"
   )
 
@@ -906,8 +901,8 @@ If there is no cell at or before this position, nothing is sent."
   )
 
 
-;; XXX if name == "control" call the control function. (or maybe cellless.)
-;; XXX if cell doesn't exist, warn that data is being thrown out.
+;; PENDING if name == "control" call the control function. (or maybe cellless.)
+;; PENDING if cell doesn't exist, warn that data is being thrown out.
 (defun nb-insert-output (buffer name string)
   "Put STRING in the cell named NAME, in the buffer BUFFER."
   (save-excursion			; Return to proces buffer afterwards.
@@ -1179,44 +1174,330 @@ It returns the cell, or nil if no cell was found."
 
 ;;; Text mode utilities.
 
-(defun nb-choose-text-mode ()
-  "Choose the text mode for the current buffer.  This is modifed from the
-routine \\[tex-mode]."
+(defvar nb-text-mode-converter 'notebook-to-plain-text 
+  "The choosen text mode for this notebook.  Set by \\[nb-choose-text-mode].")
+(make-variable-buffer-local 'nb-text-mode-converter)
 
+
+(defun nb-choose-text-mode ()
+  "Choose the text mode for the current buffer."
+  ;; This is copied modified from the routine \\[tex-mode].
+	      
   (if (equal (buffer-size) 0)
-      (funcall notebook-default-text-mode)
+      (progn 
+	(funcall notebook-default-text-mode)
+	(setq nb-text-mode-converter
+	      (cond ((eq notebook-default-text-mode
+			 (or (cdr (assoc "\\.tex$" auto-mode-alist)) 'tex-mode))
+		     'notebook-to-tex)
+		    ((eq notebook-default-text-mode
+			 (or (cdr (assoc "\\.html$" auto-mode-alist)) 'html-mode))
+		     'notebook-to-html)
+		    (t 'notebook-to-plain-text)
+		    ))
+	)
     (save-excursion
       (goto-char (point-min))
       (cond ((re-search-forward		; see if it is a TeX file.
 	      ;; This should probably be cleaner. 
 	      (concat "\\\\documentclass"  "\\|" "\\\\begin"  "\\\\end")
 	      nil t)
-	     (message "I am using tex mode  %s."
-		      (or (cdr (assoc "\\.tex$" auto-mode-alist)) 'tex-mode))
-	     (funcall (or (cdr (assoc "\\.tex$" auto-mode-alist)) 'tex-mode)))
+	     ;; (message "I am using tex mode  %s."
+	     ;;      (or (cdr (assoc "\\.tex$" auto-mode-alist)) 'tex-mode))
+	     (funcall (or (cdr (assoc "\\.tex$" auto-mode-alist)) 'tex-mode))
+	     (setq nb-text-mode-converter 'notebook-to-tex))
 	    ((re-search-forward "<html>\\|<body>" nil t) ; now see if it is html
-	     (message "I am using html mode %s."
-	      (or (cdr (assoc "\\.html$" auto-mode-alist))
-			 'html-helper-mode))
+	     ;;(message "I am using html mode %s."
+	     ;; (or (cdr (assoc "\\.html$" auto-mode-alist)) 'html-helper-mode))
 	     (funcall (or (cdr (assoc "\\.html$" auto-mode-alist))
-			 'html-helper-mode)))
+			 'html-helper-mode))
+	     (setq nb-text-mode-converter 'notebook-to-html))
 	    (t
-	     (message "I am using plain text mode.")
-	     (text-mode))		;default to plain text mode.
+	     ;; (message "I am using plain text mode.")
+	     (text-mode)		;default to plain text mode.
+	     (setq nb-text-mode-converter 'notebook-to-plain-text))
 	    ))))
 
+
+(defun nb-prompt-short ()
+  "Set the default to be short prompts."
+  (interactive)
+  (setq nb-empty-cell-format "\b>   \b (no output yet) \b\n")
+  )
+(defun nb-prompt-long ()
+  "Set the default to be long prompts."
+  (interactive)
+  (setq nb-empty-cell-format "\b>>  \b (no output yet) \b\n")
+  )
+(defun nb-toggle-prompt (pos)
+  "Toggle the prompt of the cell at POS to be either long or short."
+  (interactive "d")
+  (save-excursion
+    (let ((cell (nb-find-cell-by-position pos nil)) (prompt) )
+      (if (equal cell nil) ()		; return if no cell.
+	(goto-char (nb-cell-begin cell))
+	(if (not (looking-at nb-cell-regexp))
+	    (error "Cell %s doesn't look like an I/O cell." name))
+	(setq prompt (nb-cell-prompt-overlay cell))
+	(goto-char (match-beginning 1))
+	(overlay-put prompt 'modification-hooks  nil)
+	(if (looking-at ">>") 		; do the actual change.
+	    (delete-char 1)
+	  (insert ">>")
+	  (delete-char (-  (match-end 1) (match-beginning 1)))
+	  )
+	(overlay-put prompt 'modification-hooks 
+		     (nb-make-hook 'nb-modify-prompt cell))
+	)))
+  )
+
+
+(defun notebook-to-tex ()
+  "Convert this file to an tex file."
+  (interactive)
+  (let ((notebook-name (buffer-file-name))
+	(notebook-buffer (current-buffer))
+	(file-dir (file-name-directory (buffer-file-name)))
+	(tex-name)
+	(cell-regexp nb-cell-regexp)	; Keep track of the local variable.
+	(tex-buffer) )
+    (setq tex-name (concat (file-name-sans-extension notebook-name) ".tex"))
+    (setq tex-buffer (find-file-noselect tex-name))
+    (save-excursion
+      (set-buffer tex-buffer)
+      (delete-region (point-min) (point-max))
+      (insert-buffer-substring notebook-buffer)
+      (goto-char (point-min))		; Get rid of special characters
+      (while (re-search-forward cell-regexp nil t)
+	(let ((prompt  (buffer-substring
+			(match-beginning 1) (match-end 1)))
+	      (name   (buffer-substring
+		       (match-beginning 2) (match-end 2)))
+	      (input  (buffer-substring
+		       (match-beginning 3) (match-end 3)))
+	      (output  (buffer-substring
+			(match-beginning 4) (match-end 4)))
+	      )
+	  (delete-region (match-beginning 0) (match-end 0))
+	  (setq input (funcall nb-adjust-tex-input input notebook-buffer name))
+	  (setq output (funcall nb-adjust-tex-output output notebook-buffer name))
+	  (if (equal ">" prompt)
+	      (progn
+		(insert (concat  "{ \\tt > " input))
+		(unless (equal output "")
+		  (insert (concat "\\, ( " output ")")))
+		(insert "}"))
+	    (insert (concat  "\n\\begin{verbatim}\n>> " input output))
+	    (insert "\\end{verbatim}"))
+	  )
+	)
+      (goto-char (point-min))		; make some special stuff.
+      (if (re-search-forward "\\document.*\n" nil t)
+	  (goto-char (match-end 0)))
+      (end-of-line)
+      (insert "\n\\newcommand{\\prompt}{\\mbox{$>$}}\n") 
+
+
+      (goto-char (point-min))		; join nearby cells
+      (while (re-search-forward 
+	      "\\\\end{verbatim}[ \t]*\n\\\\begin{verbatim}"
+	      nil t)
+	(goto-char (match-beginning 0))
+	(delete-region (match-beginning 0) (match-end 0) )
+	(insert "\n"))
+      ;; Now run TeX on it: (this is taken from tex-file...)
+      (save-some-buffers)
+      (if (tex-shell-running)
+	  (tex-kill-job)
+	(tex-start-shell))
+      (tex-send-command tex-shell-cd-command file-dir)
+      (tex-send-command tex-command tex-name)
+      (setq tex-last-buffer-texed (current-buffer))
+      (setq tex-print-file (buffer-file-name))
+      )
+    (tex-display-shell) 
+    )
+  )
+
+;; (defun notebook-to-tex ()
+;;   "Convert this file to a TeX file, and run the command tex-file on it."
+;;   (interactive)
+;;   (let ((notebook-name (buffer-file-name))
+;; 	(notebook-buffer (current-buffer))
+;; 	(file-dir (file-name-directory (buffer-file-name)))
+;; 	(tex-name)
+;; 	(cell-regexp nb-cell-regexp)	; Keep track of the local variable.
+;; 	(tex-buffer) )
+;;     (setq tex-name (concat (file-name-sans-extension notebook-name) ".tex"))
+;;     (setq tex-buffer (find-file-noselect tex-name))
+;;     (save-excursion
+;;       (set-buffer tex-buffer)
+;;       (delete-region (point-min) (point-max))
+;;       (insert-buffer-substring notebook-buffer)
+;;       (goto-char (point-min))		; Get rid of special characters
+;;       (while (re-search-forward cell-regexp nil t)
+;; 	;; Check to see if this is short input:
+;; 	(if (equal ">" (buffer-substring (match-beginning 1)
+;; 					(match-end 1)))
+;; 	    (let ((body (buffer-substring ;short form.
+;; 			(match-beginning 4) (match-end 4))))
+;; 	      (goto-char (- (match-end 0) 1))
+;; 	      (delete-char 1)
+;; 	      (if (equal "" body)
+;; 		  (insert "}")		; no output
+;; 		(insert ")} " ))	; there was output preface it.
+;; 	      (goto-char (match-end 3))
+;; 	      (delete-char 1)
+;; 	      (if (equal "" body) ()	;no output
+;; 		(insert " \\, (" ))	;there was output preface it.
+;; 	      (goto-char (match-beginning 0))
+;; 	      (delete-region  (match-beginning 0) (match-end 1))
+;; 	      (insert "{ \\tt ")
+;; 	      )
+;; 					; prompt indicated long form.
+;; 	  (goto-char (- (match-end 0) 1))
+;; 	  (delete-char 1)
+;; 	  (insert "\\end{verbatim}")
+;; 	  (goto-char (match-end 3))
+;; 	  (delete-char 1)
+;; 	  (goto-char (match-beginning 0))
+;; 	  (delete-char 1)
+;; 	  (insert "\\begin{verbatim}")
+;; 	  ) )
+;;       (goto-char (point-min))		; join nearby cells
+;;       (while (re-search-forward 
+;; 	      "\\\\end{verbatim}[ \t]*\n\\\\begin{verbatim}"
+;; 	      nil t)
+;; 	(goto-char (match-beginning 0))
+;; 	(delete-region (match-beginning 0) (match-end 0) )
+;; 	(insert "\n"))
+;;       ;; Now run TeX on it: (this is taken from tex-file...)
+;;       (save-some-buffers)
+;;       (if (tex-shell-running)
+;; 	  (tex-kill-job)
+;; 	(tex-start-shell))
+;;       (tex-send-command tex-shell-cd-command file-dir)
+;;       (tex-send-command tex-command tex-name)
+;;       (setq tex-last-buffer-texed (current-buffer))
+;;       (setq tex-print-file (buffer-file-name))
+;;       )
+;;     (tex-display-shell) 
+;;     )
+;;   )
+
+(defconst nb-adjust-tex-input
+  (lambda (string buffer name)
+    ;; (scratch (format "Adjusting %s from cell %s.\n" string name))
+    (replace-regexp-in-string 
+     "\\$" "\\\\$"
+     (replace-regexp-in-string
+      "%" "\\\\%"
+      string)))
+  "A function which adjusts an input string so that it is valid tex.")
+(make-variable-buffer-local 'nb-adjust-tex-input)
+
+(defconst nb-adjust-tex-output nb-adjust-tex-input
+  "A function which adjusts an output string so that it is valid tex.")
+(make-variable-buffer-local 'nb-adjust-tex-output)
+
+
+(defun notebook-to-html ()
+  "Convert this file to an html file."
+  (interactive)
+  (let ((notebook-name (buffer-file-name))
+	(notebook-buffer (current-buffer))
+	(file-dir (file-name-directory (buffer-file-name)))
+	(html-name)
+	(cell-regexp nb-cell-regexp)	; Keep track of the local variable.
+	(html-buffer) )
+    (setq html-name (concat (file-name-sans-extension notebook-name) ".html"))
+    (setq html-buffer (find-file-noselect html-name))
+    (save-excursion
+      (set-buffer html-buffer)
+      (delete-region (point-min) (point-max))
+      (insert-buffer-substring notebook-buffer)
+      (goto-char (point-min))		; Get rid of special characters
+      (while (re-search-forward cell-regexp nil t)
+	(let ((prompt  (buffer-substring
+		      (match-beginning 1) (match-end 1)))
+	      (name   (buffer-substring
+		      (match-beginning 2) (match-end 2)))
+	      (input  (buffer-substring
+		      (match-beginning 3) (match-end 3)))
+	      (output  (buffer-substring
+		      (match-beginning 4) (match-end 4)))
+	      )
+	  (delete-region (match-beginning 0) (match-end 0))
+	  (setq input (funcall nb-adjust-html-input input notebook-buffer name))
+	  (setq output (funcall nb-adjust-html-output output notebook-buffer name))
+	  (if (equal ">" prompt)
+	      (if  (equal "" output)
+	      (insert (concat  "<KBD>" input "</KBD>" ))
+	      (insert (concat  "<KBD>" input "</KBD> (<SAMP>" output "</SAMP>)" )))
+	    (insert (concat  "\n<pre>\n&gt;&gt; " input output "\n</pre>" ))
+	      )
+	  ))
+      )
+    (save-some-buffers)
+    )
+  )
+
+(defconst nb-adjust-html-input
+  (lambda (string buffer name)
+    ;; (scratch (format "Adjusting %s from cell %s.\n" string name))
+    (replace-regexp-in-string 
+     ">" "&gt;"
+     (replace-regexp-in-string
+      "<" "&lt;"
+     (replace-regexp-in-string
+      "\"" "&quot;"
+      (replace-regexp-in-string "&" "&amp;" string)))) )
+  "A function which adjusts an input string so that it is valid html.")
+(make-variable-buffer-local 'nb-adjust-html-input)
+
+(defconst nb-adjust-html-output nb-adjust-html-input
+  "A function which adjusts an output string so that it is valid html.")
+(make-variable-buffer-local 'nb-adjust-html-output)
+
+(defun notebook-to-plain-text ()
+  "Convert this file to a plain text file."
+  (interactive)
+  (let ((notebook-name (buffer-file-name))
+	(notebook-buffer (current-buffer))
+	(file-dir (file-name-directory (buffer-file-name)))
+	(text-name)
+	(cell-regexp nb-cell-regexp)	; Keep track of the local variable.
+	(text-buffer) )
+    (setq text-name (concat (file-name-sans-extension notebook-name) ".txt"))
+    (setq text-buffer (find-file-noselect text-name))
+    (save-excursion
+      (set-buffer text-buffer)
+      (delete-region (point-min) (point-max))
+      (insert-buffer-substring notebook-buffer)
+      (goto-char (point-min))		; Get rid of special characters
+      (while (re-search-forward "\b" nil t)
+	(replace-match "" nil nil))
+      )))
 
 ;;; Notebook Shell Mode.
 
 ;;
 (defvar nb-shell-script-extension ".sh"
   "The default extension to use when creating a new shell script.
-This is used by {notebook-to-script}. " )
+This is used by \\[notebook-to-script]. " )
+(make-variable-buffer-local 'nb-shell-script-extension)
+
+(defvar nb-script-comment "#"
+  "This is put at the beginning of a line to comment out text regions
+in the routine \\[notebook-to-script]. " )
+(make-variable-buffer-local 'nb-script-comment)
+
 
 ;;
 (defvar nb-shell-script-line "#! /bin/bash"
   "The first line to put in a new shell script.
-This is used by {notebook-to-script}. " )
+This is used by \\[notebook-to-script]. " )
+(make-variable-buffer-local 'nb-shell-script-line)
 
 ;;
 (defun notebook-mode ()
@@ -1292,17 +1573,6 @@ if that value is non-nil."
   ;; M: other modes might set the indent-line-function, we inherit from text mode.
   (use-local-map			; M: notebook modes need the special keys.
    (nb-setup-keymap (copy-keymap (current-local-map))))
-
-  ;; set notebook-syntax-table
-  ;; set variable that handles comments.
-  ;; font lock defaults.
-  ;; imenu-generic-expression (???? what?)
-  ;; use defvar or defcustom to set variables.
-  ;; use make-local-variable for variables that are normally global, but
-  ;;      locally local
-  ;;      i.e. don't use `make-variable-buffer-local' except for nb-* variables.
-  ;; document autoload and add to auto-mode-alist.
-  ;; ... read rest.
   (run-hooks 'notebook-mode-hook 'shell-notebook-mode-hook)
   )
   
@@ -1311,7 +1581,7 @@ if that value is non-nil."
   "If this is non-nil, it is the hook that's run for any shell notebook.")
 
 ;; 
-(defun shell-notebook-to-script (filename)
+(defun notebook-to-script (filename)
   "Convert this notebook file to a shellscript file.
 It prompts for a file FILENAME to which the new shell script is written.
 If the filename is the same as the notebook's file, then a new file is
@@ -1342,7 +1612,7 @@ characters, '#', added to the beginning of each line.
     (insert nb-shell-script-line "\n")
     (previous-line 1)
 					;make everything a comment.
-    (replace-string "\n" "\n# " )
+    (replace-string "\n" (concat "\n" nb-script-comment " " ))
     (goto-char (point-min))
     (replace-string "-*- notebook -*-" "" )
     (goto-char (point-min))
@@ -1383,7 +1653,6 @@ characters, '#', added to the beginning of each line.
 ;;; XXX make ^H have word syntax.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 ;; XXX -- make a simple set of these, and use them.
 ;; (defvar notebook-mode-map (nb-setup-keymap (make-sparse-keymap))
@@ -1441,3 +1710,28 @@ characters, '#', added to the beginning of each line.
 ;; notebook-default-choose-text-mode
 ;;
 ;;
+;; notebook-to-script -- can be modified a bit....
+;; 
+
+
+;; auctex's version:
+;; TeX-master is the master tex file.
+;; TeX-command-list
+;; (("TeX" "tex '\\nonstopmode\\input %t'" TeX-run-TeX nil t)
+;;  ("TeX Interactive" "tex %t" TeX-run-interactive nil t)
+;;  ("LaTeX" "%l '\\nonstopmode\\input{%t}'" TeX-run-LaTeX nil t)
+;;  ("LaTeX Interactive" "%l %t" TeX-run-interactive nil t)
+;;  ("LaTeX2e" "latex2e '\\nonstopmode\\input{%t}'" TeX-run-LaTeX nil t)
+;;  ("View" "%v " TeX-run-silent t nil)
+;;  ("Print" "%p " TeX-run-command t nil)
+;;  ("Queue" "%q" TeX-run-background nil nil)
+;;  ("File" "dvips %d -o %f " TeX-run-command t nil)
+;;  ("BibTeX" "bibtex %s" TeX-run-BibTeX nil nil)
+;;  ("Index" "makeindex %s" TeX-run-command nil t)
+;;  ("Check" "lacheck %s" TeX-run-compile nil t)
+;;  ("Spell" "<ignored>" TeX-run-ispell-on-document nil nil)
+;;  ("Other" "" TeX-run-command t t)
+;;  ("LaTeX PDF" "pdflatex '\\nonstopmode\\input{%t}'" TeX-run-LaTeX nil t)
+;;  ("Makeinfo" "makeinfo %t" TeX-run-compile nil t)
+;;  ("Makeinfo HTML" "makeinfo --html %t" TeX-run-compile nil t)
+;;  ("AmSTeX" "amstex '\\nonstopmode\\input %t'" TeX-run-TeX nil t))
