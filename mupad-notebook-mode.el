@@ -8,44 +8,50 @@
 (require 'tex-mode)
 
 
-(defconst mupad-notebook-mode-hook nil
-  "If this is non-nil, it is the hook that's run for a mupad notebook")
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; First, define a keymap to be used for the mode.
 
-(defconst mupad-notebook-mode-syntax-table nil
-  "Syntax table used while in mupad notebook mode.")
+(defvar mupad-notebook-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tex-mode-map)
+    (mb-setup-keymap map)
+    (define-key map "\C-c\C-f" 'tex-mupad-file)
+    (define-key map [menu-bar tex tex-file]
+      '("Run TeX on Notebook" . tex-mupad-file))
+    map)
+  "The key map for mupad notebooks.")
 
-(defconst mupad-notebook-mode-map nil
-  "Keymap for Mupad notebook mode.")
-
-
-(defun mupad-notebook-mode ();This is a mupad.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-derived-mode mupad-notebook-mode tex-mode "Mupad"
   "Major mode for a Mupad notebook.  It is a combination of TeX mode
 and Notebook mode.
+
+See documentation of `notebook-mode` for a description of a notebook,
+and cells.
 
 Special commands:
 \\{mupad-notebook-mode-map}
 
-See documentation for tex-mode for other commands."
-  (interactive)
+See documentation for tex-mode for other commands.
+
+In addition to `mupad-notebook-hook', and whatever hooks tex-mode runs, 
+`common-notebook-mode-hook' is also run.
+
+"
+
   (scratch "Running mupad notebook mode.\n")
-  (nb-start-tex-mode)			; Mupad mode uses tex mode commands.
   (nb-mupad-regexpressions)
   (setq nb-adjust-input-string mupad-notebook-adjust-input-string)
   (setq nb-adjust-output-string mupad-notebook-adjust-output-string)
   (setq nb-start-process mupad-start-process)
-  (notebook-mode)
-  (use-local-map mupad-notebook-mode-map)
+  (notebook-mode-initialize)
   (setq indent-tabs-mode nil)
   (setq nb-process (nb-find-mupad-process))
   (if nb-process
     (setq mode-line-process (format ": %s"
 				    (process-name nb-process)))
     )
-  (setq major-mode 'mupad-notebook-mode)
-  (setq mode-name "Mupad")
-  (run-hooks 'tex-mode-hook 'mupad-notebook-mode-hook)
   ) 
-
 
 (defun nb-mupad-regexpressions ()
   "Set regular expressions for mupad mode."

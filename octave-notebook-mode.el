@@ -7,41 +7,47 @@
 (require 'tex-mode)
 
 
-(defconst octave-notebook-mode-hook nil
-  "If this is non-nil, it is the hook that's run for a octave notebook")
+(defvar octave-notebook-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tex-mode-map)
+    (mb-setup-keymap map)
+    (define-key map "\C-c\C-f" 'tex-octave-file)
+    (define-key map "\C-c>" 'octave-toggle-prompt)
+    (define-key map [menu-bar tex tex-file]
+      '("Run TeX on Notebook" . tex-octave-file))
+    map)
+  "The key map for octave notebooks.")
 
-(defconst octave-notebook-mode-syntax-table nil
-  "Syntax table used while in octave notebook mode.")
-
-(defconst octave-notebook-mode-map nil
-  "Keymap for Octave notebook mode.")
-
-(defun octave-notebook-mode ();This is a octave.
-  "Major mode for a Octave notebook.  It is a combination of TeX mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-derived-mode matlab-notebook-mode tex-mode "Matlab"
+  "Major mode for a Matlab notebook.  It is a combination of TeX mode
 and Notebook mode.
 
-Special commands:
-\\{octave-notebook-mode-map}
+See documentation of `notebook-mode` for a description of a notebook,
+and cells.
 
-See documentation for tex-mode for other commands."
-  (interactive)
-  (scratch "Running octave notebook mode.\n")
-  (nb-start-tex-mode)			; Octave mode uses tex mode commands.
+Special commands:
+\\{matlab-notebook-mode-map}
+
+See documentation for tex-mode for other commands.
+
+In addition to `matlab-notebook-hook', and whatever hooks tex-mode runs, 
+`common-notebook-mode-hook' is also run.
+
+"
+
+  (scratch "Running matlab notebook mode.\n")
   (nb-octave-regexpressions)
   (setq nb-adjust-input-string octave-notebook-adjust-input-string)
   (setq nb-adjust-output-string octave-notebook-adjust-output-string)
   (setq nb-start-process octave-start-process)
-  (notebook-mode)
-  (use-local-map octave-notebook-mode-map)
+  (notebook-mode-initialize)
   (setq indent-tabs-mode nil)
   (setq nb-process (nb-find-octave-process))
   (if nb-process
     (setq mode-line-process (format ": %s"
 				    (process-name nb-process)))
     )
-  (setq major-mode 'octave-notebook-mode)
-  (setq mode-name "Octave")
-  (run-hooks 'tex-mode-hook 'octave-notebook-mode-hook)
   ) 
 
 
@@ -191,21 +197,6 @@ return nil."
 process will be started, even if an old one already exists.  "
   )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar octave-notebook-mode-map nil "Keymap for octave mode.")
-(setq octave-notebook-mode-map (copy-keymap tex-mode-map))
-(nb-setup-keymap octave-notebook-mode-map)
-(define-key octave-notebook-mode-map "\C-c\C-f" 'tex-octave-file)
-(define-key octave-notebook-mode-map "\C-c>" 'octave-toggle-prompt)
-;; (define-key octave-notebook-mode-map [C-c end] 'nb-set-end-of-notebook)
-
-
-(define-key octave-notebook-mode-map
-  [menu-bar tex tex-file]
-  '("Run TeX on Notebook" . tex-octave-file))
-;; (define-key octave-notebook-mode-map
-;;   [menu-bar notebook nb-set-end-of-notebook ]
-;;   '("Set End of Notebook" . nb-set-end-of-notebook))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Convert to TeX and run TeX on the file:
