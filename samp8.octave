@@ -25,7 +25,6 @@ plot(t, sin(t))
 This is an example of a function in octave.
 >>  function y = junk(x)
 y = 3 * x .^ 2 - x ; (function junk.m saved)  
-$x=1^4$
 >>  plot(t, junk(t)) 
 >>  eig(a) 
  ans =
@@ -41,7 +40,7 @@ Here is some short
 
  or
 $> z_2 = 4.55^3;   $ or 
-$>z_4 = 2^3   z_4 = 8  
+$>z_4 = 2^3   z_4 = 8  $
 
 $>  z_4 + z_2   ans = 102.20   $
 

@@ -1,6 +1,5 @@
 This needs the scratchpad program, which is not ready for prime time.
-
-what is 
+(or even beta testing)
 
 >>x = 1 in    0.0254  m
 >>y = 1 ft    0.3048  m
