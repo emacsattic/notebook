@@ -137,6 +137,8 @@ In addition to `mupad-notebook-hook', and whatever hooks tex-mode runs,
 	(goto-char beg)			; If there's nothing left but
 	(if (looking-at "\\([ \n\t]*\\)\b") ; whitespace, remove it.
 	    (delete-region (match-beginning 1) (match-end 1)))
+	(set-marker beg nil)
+	(set-marker end nil)
 	))
     )
   "Adjust the output text from mupad."
@@ -173,6 +175,7 @@ return nil."
 			       "mupad"	; Program name.
 ;;			       "-S"	; Start without banner.
 			       ))
+	  (process-kill-without-query nb-process)
 	  (set-process-filter nb-process 'nb-filter)
 ;;	  (process-send-string nb-process
 ;;			       "TEXTWIDTH := 80;\n")

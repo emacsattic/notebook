@@ -112,6 +112,7 @@ following to my auto-mode-alist:
  ("\\.mu$" . mupad-notebook-mode)
  ("\\.matlab$" . matlab-notebook-mode)
  ("\\.M$" . matlab-notebook-mode)
+ ("\\.octave$" . octave-notebook-mode)
  ("\\.shell$" . notebook-mode)
 @end lisp
 

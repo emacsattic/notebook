@@ -26,6 +26,7 @@ I've added the following to my auto-mode-alist:
  ("\\.mu$" . mupad-notebook-mode)
  ("\\.matlab$" . matlab-notebook-mode)
  ("\\.M$" . matlab-notebook-mode)
+ ("\\.octave$" . octave-notebook-mode)
  ("\\.shell$" . notebook-mode)
 
 
@@ -35,7 +36,20 @@ There are some sample files in this directory.
 -----------
 Note:  There is some interaction problem with flyspell-mode.  Both try to
 define M-RET and M-TAB.
-I put this in my flyspell-mode-hook:
-  (define-key flyspell-mode-map "\M-\t" nil)
-  (define-key flyspell-mode-map "\M-\r" nil)
+
+I put this in my .emacs:
+
+(setq flyspell-mouse-map
+      (let ((map (make-sparse-keymap)))
+	(define-key map [(S-mouse-2)] #'flyspell-correct-word/mouse-keymap)
+	(define-key map [H-tab] #'flyspell-auto-correct-word)
+	(define-key map [C-S-iso-lefttab] #'flyspell-auto-correct-word)
+	map))
+	
+(define-key flyspell-mode-map "\M-\t" nil)
+(define-key flyspell-mode-map "\M-\r" nil)
+(define-key flyspell-mode-map [(S-mouse-2)] #'flyspell-correct-word/mouse-keymap)
+(define-key flyspell-mode-map [?\H-tab] #'flyspell-auto-correct-word)
+(define-key flyspell-mode-map  [C-S-iso-lefttab] #'flyspell-auto-correct-word)
+
 

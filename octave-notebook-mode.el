@@ -75,7 +75,6 @@ In addition to `ocatave-notebook-hook', and whatever hooks tex-mode runs,
     ))
 
 
-
 (defconst octave-function-regexp
   "This matches the definition of a function.")
 
@@ -109,9 +108,6 @@ In addition to `ocatave-notebook-hook', and whatever hooks tex-mode runs,
 
 (defconst octave-notebook-adjust-output-string
   (lambda (i-beg i-end o-beg o-end cell)
-    ;;(scratch (format
-    ;;   "Adjusting output. input=<%d,%d> output=<%d,%d> name = %s\n"
-    ;;     i-beg i-end o-beg o-end (nb-cell-name cell)))
     (let ((input (buffer-substring i-beg i-end))
 	  (beg (make-marker))
 	  (end (make-marker))
@@ -120,33 +116,53 @@ In addition to `ocatave-notebook-hook', and whatever hooks tex-mode runs,
       (move-marker end o-end)
       (save-excursion                     ;remember point.
 	(goto-char end)                   ; strip ending off.
-	(while (re-search-backward ".*fprintf.*\\f.*\n" beg t) 
-	  ;;(scratch (format "removing printf (%d - %d\n"
-	  ;;	   (match-beginning 0) (match-end 0)))
-	  (delete-region (match-beginning 0) (match-end 0))
-	  )
-	;;(scratch "removing prompts ")
-	(goto-char beg)                   ; strip all prompts.
+	;; (while (re-search-backward ".*fprintf.*\\f.*\n" beg t) 
+	;; 	  (message (format "removing printf (%d - %d"
+	;; 			   (match-beginning 0) (match-end 0)))
+	;; 	  (delete-region (match-beginning 0) (match-end 0))
+	;; 	  )
+
+	;; Remove all the prompts:
+	(goto-char beg)           
 	(while (re-search-forward  "\\s *octave:[0-9]+>\\s *" end t) 
-	  ;;(scratch "- ")
 	  (delete-region (match-beginning 0) (match-end 0)) )
-	;;(scratch "\nstripping echos.\n")
-	(nb-delete-lines beg input end t)	;strip input echo.
-	(goto-char beg)			; Delete blank lines.
+	;; Get rid of the trailing junk.
+	(goto-char beg)           
+	(if (re-search-forward  "\\([ \t\n]+\\)\b" (+ end 1) t) 
+	    (progn
+	      (delete-region (match-beginning 1) (match-end 1))
+	      )
+	  )
+	;;String off echos: 
+	;; octave doesn't echo: XXX  (nb-delete-lines beg input end t)
+	(goto-char beg)		; Delete blank lines.
 	(while (re-search-forward "\\(\n\\s *\\)\n" end t)
-	  (goto-char (match-beginning 0))
 	  (delete-region (match-beginning 1) (match-end 1)))
 	(goto-char beg)
-	(if (re-search-forward "\a" end t) ;Warning, there was an error.
+	(if (re-search-forward "error:" end t) ;Warning, there was an error.
 	    (progn
-	      (goto-char (match-beginning 0))
-	      (delete-char 1)
 	      (nb-set-cell-status cell 'error)
 	      (nb-set-colors cell)
 	      ))
+	(goto-char beg)
+	(insert " ")
+	(goto-char end)
+	(insert "  ")
 	(goto-char beg)			; If there's nothing left but
-	(if (looking-at "\n\b")		; a newline, remove it.
-	    (delete-char 1))
+	(if (looking-at "\\([ \t\n]+\\)\b")	; whitespace, remove it.
+	    (delete-region (match-beginning 1) (match-end 1))
+	  ;; Otherwise, if it is really just two lines.  x = \n...
+	  ;; Then we should just make it one line.
+	  (if (looking-at "[^\n]*=\\(\n\\)[^\n]*\b")
+	      (delete-region (match-beginning 1) (match-end 1))
+	    ;; If it's more than two lines, the we should put the "x =" on
+	    ;; it's own line, too.
+	    (if (looking-at "\\s *\\(\\sw* =\n\\)")
+		(insert "\n"))
+	    )
+	  )
+	(set-marker beg nil)
+	(set-marker end nil)
 	))
     )
   "Adjust the output text from octave."
@@ -239,11 +255,6 @@ process will be started, even if an old one already exists.  "
   (tex-mode)				; run tex.
   )
 
-(defun octave-to-tex-name (name)
-  (string-match "\\(.*\\)\.m" name)	; anything before the .m
-  (concat (substring name (match-beginning 1) (match-end 1))
-	  ".tex")
-  )
 
 (defun tex-octave-file ()
   "Convert this file to a TeX file, and run the command tex-file on it."
@@ -254,7 +265,7 @@ process will be started, even if an old one already exists.  "
 	(tex-name)
 	(cell-regexp nb-cell-regexp)	; Keep track of the local variable.
 	(tex-buffer) )
-    (setq tex-name (octave-to-tex-name octave-name))
+    (setq tex-name (concat (file-name-sans-extension octave-name) ".tex"))
     (setq tex-buffer (find-file-noselect tex-name))
     (save-excursion
       (set-buffer tex-buffer)

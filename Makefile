@@ -1,11 +1,12 @@
 # $Id$
 # Edit the directories to show where you want things installed:
 
-infodir = /usr/share/info
 # You probably want this:
 # lispdir = /usr/share/emacs/site-lisp/notebook
+# infodir = /usr/share/info
 # But I use this:
 lispdir = $(HOME)/Emacs
+infodir = $(HOME)/Emacs/info
 
 # This should change after an upload.
 VERSION = 1.3

@@ -1,3 +1,10 @@
+2002-10-18  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* octave-notebook-mode.el (octave-notebook-adjust-output-string):
+	Modifey the format a bit so that it splits lines more
+	appropriately, and deletes some of the extra white space.
+	
+
 2002-10-17  Fred Gylys-Colwell  <fredgc@member.ams.org>
 
 	* notebook-mode.el (nb-start-process): It is now o.k. to quit

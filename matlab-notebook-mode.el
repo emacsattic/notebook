@@ -150,6 +150,8 @@ In addition to `matlab-notebook-hook', and whatever hooks tex-mode runs,
 	(goto-char beg)			; If there's nothing left but
 	(if (looking-at "\n\b")		; a newline, remove it.
 	    (delete-char 1))
+	(set-marker beg nil)
+	(set-marker end nil)
 	))
     )
   "Adjust the output text from matlab."
@@ -184,6 +186,7 @@ return nil."
 		(start-process "matlab"	; name of process
 			       buff
 			       "matlab"))	; Program name.
+	  (process-kill-without-query nb-process)
 	  (set-process-filter nb-process 'nb-filter)
 	  (process-send-string nb-process "echo off\n")
 	  (set-buffer buff)
@@ -238,12 +241,6 @@ process will be started, even if an old one already exists.  "
   )
 
 
-(defun matlab-to-tex-name (name)
-  (string-match "\\(.*\\)\.m" name)	; anything before the .m
-  (concat (substring name (match-beginning 1) (match-end 1))
-	  ".tex")
-  )
-
 (defun tex-matlab-file ()
   "Convert this file to a TeX file, and run the command tex-file on it."
   (interactive)
@@ -253,7 +250,7 @@ process will be started, even if an old one already exists.  "
 	(tex-name)
 	(cell-regexp nb-cell-regexp)	; Keep track of the local variable.
 	(tex-buffer) )
-    (setq tex-name (matlab-to-tex-name matlab-name))
+    (setq tex-name (concat (file-name-sans-extension matlab-name) ".tex"))
     (setq tex-buffer (find-file-noselect tex-name))
     (save-excursion
       (set-buffer tex-buffer)

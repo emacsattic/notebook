@@ -680,11 +680,11 @@ currently running process. (This doesn't work for the shell notebook.)"
 	       (buffer-name)	; name of process
 	       (format "*%s-process*" (buffer-name)) ; process buffer.
 	       "bash")))		; Program name.
+    (process-kill-without-query nb-process)
     (set-process-filter nb-process 'nb-filter)
 ;    (process-send-string nb-process
 ;			 "alias ls='ls --no-color'\n")
     (process-send-string nb-process "PS1=\"\"\n")
-    (process-kill-without-query nb-process)
     (setq mode-line-process ": run")
     (save-excursion
       (let ((oldbuf (current-buffer))
@@ -704,11 +704,12 @@ currently running process. (This doesn't work for the shell notebook.)"
 (defun nb-kill-process ()
   "Kill the current process."
   (interactive)
-  (if (not nb-process)
-      ()
-    (kill-buffer (process-buffer nb-process))
-    (delete-process nb-process)
-    (setq nb-process nil))
+  (if  nb-process
+      (let ((buff (process-buffer nb-process)))
+	(delete-process nb-process)
+	(kill-buffer buff)
+	(setq nb-process nil))
+    )
   (setq mode-line-process ": no proc.")
   )
 

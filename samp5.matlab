@@ -1,4 +1,5 @@
-% This is a sample Matlab Notebook.  $Id$
+% This is a sample Matlab Notebook.
+%   $Id$
 % It has some tex commands.
 	
 \documentclass{notebook}

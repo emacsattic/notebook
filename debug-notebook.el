@@ -8,6 +8,7 @@
 ;;; DEBUGGING COMMANDS:
 
 (global-set-key [M-f4] 'nb-reload-modes) ; for debugging.
+(global-set-key [M-f3] 'nb-redo-octave-mode) ; for debugging.
 
 (defun nb-reload-modes ()
   "Reload the notbook modes."
@@ -20,6 +21,7 @@
       (eval-buffer (find-file-noselect "matlab-notebook-mode.el"))
       (eval-buffer (find-file-noselect "mupad-notebook-mode.el"))
       (eval-buffer (find-file-noselect "octave-notebook-mode.el"))
+      (message "Finished reloading all the notebook modes.")
       )))
 
 
@@ -27,7 +29,7 @@
   "Reload this file and convert to notbook mode."
   (interactive)
   (nb-turn-off-mode)
-  (mb-reload-modes)
+  (nb-reload-modes)
   (matlab-notebook-mode)
   )
 
@@ -36,7 +38,7 @@
   "Reload this file and convert to notbook mode."
   (interactive)
   (nb-turn-off-mode)
-  (mb-reload-modes)
+  (nb-reload-modes)
   (mupad-notebook-mode)
   )
 
@@ -45,7 +47,7 @@
   "Reload this file and convert to notbook mode."
   (interactive)
   (nb-turn-off-mode)
-  (mb-reload-modes)
+  (nb-reload-modes)
   (octave-notebook-mode)
   )
 
