@@ -93,6 +93,12 @@ cell itself."
   )
 (make-variable-buffer-local 'nb-extra-cell-initialize)
 
+(defvar nb-extra-cell-delete nil
+  "A hook which is called before a cell's data is removed from the cell list.
+It's only argument is the cell itself.  This is done after the cells text has
+been removed from the buffer."
+  )
+(make-variable-buffer-local 'nb-extra-cell-delete)
 
 ;;
 (defvar nb-syntax-table nil
@@ -910,7 +916,6 @@ If there is no cell at or before this position, nothing is sent."
     (let ( (string) (cell (nb-find-cell-by-position position nil)))
       (if cell
 	  (progn
-	    (nb-set-cell-status cell 'entered)
 	    (setq string
 		  (buffer-substring (match-beginning 3) (match-end 3)))
 	    ;;(scratch (format "Sending %s from cell '%s'.\n"
@@ -926,6 +931,7 @@ If there is no cell at or before this position, nothing is sent."
 		  (insert (concat "<<" string ">>"))
 		  ))			; end debugging statements.
 	    (process-send-string nb-process string)
+	    (nb-set-cell-status cell 'entered)
 	    ))))
   )
 
@@ -1095,7 +1101,7 @@ It returns the cell, or nil if no cell was found."
 
 
 (defun nb-modify-prompt (overlay after beg end cell &optional len)
-  "This is called when an prompt overlay is changed."
+  "This is called when a prompt overlay is changed."
   ;; (message "running nb-modify-prompt %s (%d-%d)" after beg end)
   (if after
       (nb-delete-cell-data cell)	; Only modification that can be done.
@@ -1189,11 +1195,11 @@ It returns the cell, or nil if no cell was found."
   "Delete the data for this cell."
   (if (not cell)
       ()
+    (run-hook-with-args 'nb-extra-cell-delete cell)
     (delete-overlay (nb-cell-prompt-overlay cell))
     (delete-overlay (nb-cell-input-overlay cell))
     (delete-overlay (nb-cell-output-overlay cell))
-    (setq nb-cell-list
-	  (delete cell nb-cell-list))
+    (setq nb-cell-list (delete cell nb-cell-list))
     ))
 ;;
 (defun nb-yank (&optional arg)
