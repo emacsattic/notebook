@@ -182,7 +182,7 @@ boundary for this input.")
 
   ;; Note: The default has changed in version 2.0: the cell name is no longer
   ;; embedded into the prompt.
-  (defconst nb-empty-cell-format "\b>>  \b  (no output yet) \b\n"
+  (defconst nb-empty-cell-format "\b>>  \b  --no output yet-- \b\n"
     "This is inserted as an initial empty cell.  It can use the name of the
 cell if it wishes (e.g. \"\bin(%s) =  \n< >\b\").  "
     )
@@ -1261,13 +1261,15 @@ It returns the cell, or nil if no cell was found."
 (defun nb-prompt-short ()
   "Set the default to be short prompts."
   (interactive)
-  (setq nb-empty-cell-format "\b>   \b (no output yet) \b\n")
+  (setq nb-empty-cell-format "\b>   \b --no output yet-- \b\n")
   )
+
 (defun nb-prompt-long ()
   "Set the default to be long prompts."
   (interactive)
-  (setq nb-empty-cell-format "\b>>  \b (no output yet) \b\n")
+  (setq nb-empty-cell-format "\b>>  \b --no output yet-- \b\n")
   )
+
 (defun nb-toggle-prompt (pos)
   "Toggle the prompt of the cell at POS to be either long or short."
   (interactive "d")
@@ -1289,7 +1291,6 @@ It returns the cell, or nil if no cell was found."
 		     (nb-make-hook 'nb-modify-prompt cell))
 	)))
   )
-
 
 (defun notebook-to-tex ()
   "Convert this file to an tex file."
@@ -1318,16 +1319,10 @@ It returns the cell, or nil if no cell was found."
 			(match-beginning 4) (match-end 4)))
 	      )
 	  (delete-region (match-beginning 0) (match-end 0))
-	  (setq input (funcall nb-adjust-tex-input input notebook-buffer name))
-	  (setq output (funcall nb-adjust-tex-output output notebook-buffer name))
-	  (if (equal ">" prompt)
-	      (progn
-		(insert (concat  "{ \\tt > " input))
-		(unless (equal output "")
-		  (insert (concat "\\, ( " output ")")))
-		(insert "}"))
-	    (insert (concat  "\n\\begin{verbatim}\n>> " input output))
-	    (insert "\\end{verbatim}"))
+	  (insert (funcall nb-adjust-tex-input
+			   notebook-buffer name input prompt))
+	  (insert (funcall nb-adjust-tex-output
+			   notebook-buffer name output prompt))
 	  )
 	)
       (goto-char (point-min))		; make some special stuff.
@@ -1364,83 +1359,35 @@ It returns the cell, or nil if no cell was found."
     )
   )
 
-;; (defun notebook-to-tex ()
-;;   "Convert this file to a TeX file, and run the command tex-file on it."
-;;   (interactive)
-;;   (let ((notebook-name (buffer-file-name))
-;; 	(notebook-buffer (current-buffer))
-;; 	(file-dir (file-name-directory (buffer-file-name)))
-;; 	(tex-name)
-;; 	(cell-regexp nb-cell-regexp)	; Keep track of the local variable.
-;; 	(tex-buffer) )
-;;     (setq tex-name (concat (file-name-sans-extension notebook-name) ".tex"))
-;;     (setq tex-buffer (find-file-noselect tex-name))
-;;     (save-excursion
-;;       (set-buffer tex-buffer)
-;;       (delete-region (point-min) (point-max))
-;;       (insert-buffer-substring notebook-buffer)
-;;       (goto-char (point-min))		; Get rid of special characters
-;;       (while (re-search-forward cell-regexp nil t)
-;; 	;; Check to see if this is short input:
-;; 	(if (equal ">" (buffer-substring (match-beginning 1)
-;; 					(match-end 1)))
-;; 	    (let ((body (buffer-substring ;short form.
-;; 			(match-beginning 4) (match-end 4))))
-;; 	      (goto-char (- (match-end 0) 1))
-;; 	      (delete-char 1)
-;; 	      (if (equal "" body)
-;; 		  (insert "}")		; no output
-;; 		(insert ")} " ))	; there was output preface it.
-;; 	      (goto-char (match-end 3))
-;; 	      (delete-char 1)
-;; 	      (if (equal "" body) ()	;no output
-;; 		(insert " \\, (" ))	;there was output preface it.
-;; 	      (goto-char (match-beginning 0))
-;; 	      (delete-region  (match-beginning 0) (match-end 1))
-;; 	      (insert "{ \\tt ")
-;; 	      )
-;; 					; prompt indicated long form.
-;; 	  (goto-char (- (match-end 0) 1))
-;; 	  (delete-char 1)
-;; 	  (insert "\\end{verbatim}")
-;; 	  (goto-char (match-end 3))
-;; 	  (delete-char 1)
-;; 	  (goto-char (match-beginning 0))
-;; 	  (delete-char 1)
-;; 	  (insert "\\begin{verbatim}")
-;; 	  ) )
-;;       (goto-char (point-min))		; join nearby cells
-;;       (while (re-search-forward 
-;; 	      "\\\\end{verbatim}[ \t]*\n\\\\begin{verbatim}"
-;; 	      nil t)
-;; 	(goto-char (match-beginning 0))
-;; 	(delete-region (match-beginning 0) (match-end 0) )
-;; 	(insert "\n"))
-;;       ;; Now run TeX on it: (this is taken from tex-file...)
-;;       (save-some-buffers)
-;;       (if (tex-shell-running)
-;; 	  (tex-kill-job)
-;; 	(tex-start-shell))
-;;       (tex-send-command tex-shell-cd-command file-dir)
-;;       (tex-send-command tex-command tex-name)
-;;       (setq tex-last-buffer-texed (current-buffer))
-;;       (setq tex-print-file (buffer-file-name))
-;;       )
-;;     (tex-display-shell) 
-;;     )
-;;   )
+(defun nb-clean-for-tex (string)
+  ;; turn one dollar sign into two.
+  (setq string (replace-regexp-in-string "\\$" "$-$-" string)) 
+  ;; turn backslashes into special characters.
+  (setq string (replace-regexp-in-string "\\\\" "$\\\\backslash$" string))
+  ;; turn two dollar signs into backslash dollar sign.
+  (setq string (replace-regexp-in-string "\\$-\\$-" "\\\\$" string)) 
+  ;; Turn special characters into backslash special character:
+  (replace-regexp-in-string "\\([%{}]\\)" "\\\\\\1" string)
+  )
 
 (defconst nb-adjust-tex-input
-  (lambda (string buffer name)
-    ;; (scratch (format "Adjusting %s from cell %s.\n" string name))
-    (replace-regexp-in-string 
-     ;; PENDING: this is not needed in verbatim mode.
-     "\\([%{}\\\\\\$]\\)" "\\\\\\1"
-      string))
+  (lambda (buffer name input prompt)
+    (if (equal ">" prompt)
+	(concat "{ \\tt > " (nb-clean-for-tex input))
+      (concat "\n\\begin{verbatim}\n>> " input))
+    )
   "A function which adjusts an input string so that it is valid tex.")
 (make-variable-buffer-local 'nb-adjust-tex-input)
 
-(defconst nb-adjust-tex-output nb-adjust-tex-input
+(defconst nb-adjust-tex-output 
+  (lambda (buffer name output prompt)
+    (if (equal ">" prompt)
+	(if (equal output "")
+	    "}"
+	  (concat "\\, (" (nb-clean-for-tex input) ")}"))
+      (concat output " \\end{verbatim}")
+      )
+    )
   "A function which adjusts an output string so that it is valid tex.")
 (make-variable-buffer-local 'nb-adjust-tex-output)
 
