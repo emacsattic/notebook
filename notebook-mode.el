@@ -87,6 +87,13 @@ the process.  It is called with INPUT-START, INPUT-END
 the current buffer between START and END.  CELL is the name of the cell. ")
 (make-variable-buffer-local 'nb-adjust-output-string)
 
+(defvar nb-extra-cell-initialize nil
+  "A hook which is called after a cell is initialized.  It's only argument is the
+cell itself."
+  )
+(make-variable-buffer-local 'nb-extra-cell-initialize)
+
+
 ;;
 (defvar nb-syntax-table nil
   "Used as local syntax table for font lock in notebooks.")
@@ -470,6 +477,7 @@ the start of the cell text.  The new cell is returned."
 	(overlay-put prompt 'cell cell) 
 	(overlay-put  input 'cell cell) 
 	(overlay-put output 'cell cell) 
+	(run-hook-with-args nb-extra-cell-initialize cell)
 	cell				;return the cell.
 	)
       ))
