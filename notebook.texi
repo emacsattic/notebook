@@ -56,13 +56,14 @@ approved by the Free Software Foundation.
 
 This is edition @value{VERSION} of the Notebook Mode Manual.
 
-Notebook mode sets up a sub process that has well defined input and output
-responses.  Each notebook has a collection of cells, consisting of a prompt, an
-input region and an output region.  You tell Emacs to send a cell to the
-process (using C-Enter or M-Enter) and when the process responds, it will paste
-the output in to the output region.  You can then go back and edit other cells
-and re-enter them.  Between the cells is regular text, which you can do with as
-you wish. 
+Notebook mode sets up a sub process that has well defined input and
+output responses.  Each notebook has a collection of cells, consisting
+of a prompt, an input region and an output region.  You tell Emacs to
+send a cell to the process (using @kbd{C-@key{RET}} or @kbd{M-@key{RET}})
+and when the process responds, it will paste the output in to the
+output region.  You can then go back and edit other cells and re-enter
+them.  Between the cells is regular text, which you can do with as you
+wish.
 
 This idea of a notebook with cells is popular with programs such as Matlab,
 Maple or Mathematica.  I use it with matlab, and then pipe the notebook through
@@ -78,6 +79,7 @@ Submodes
 * Matlab Mode::                 Running Matlab in a notebook.
 * Octave Mode::                 Running Octave in a notebook.
 * MuPad Mode::                  Running Mupad in a notebook.
+* Create Your Own::             Hack the code -- make your own mode.
 
 Indices
 
@@ -200,7 +202,7 @@ decide if the cell should be on a line by itself.
 Note: this may be obsolete.  I haven't tested it recently.
 It uses the same interface as matlab-mode.
 
-@node MuPad Mode, Concept Index, Octave Mode, Top
+@node MuPad Mode, Create Your Own, Octave Mode, Top
 @comment  node-name,  next,  previous,  up
 @chapter Running MuPad in a Notebook
 @cindex mupad
@@ -209,7 +211,67 @@ It uses the same interface as matlab-mode.
 Note: this may be obsolete.  I haven't tested it recently.
 It uses the same interface as matlab-mode.
 
-@node Concept Index, Keystroke Index, MuPad Mode, Top
+@node Create Your Own, Concept Index, MuPad Mode, Top
+@comment  node-name,  next,  previous,  up
+@chapter Hack the code -- make your own mode.
+@cindex hack
+@cindex other programs
+@cindex create new mode
+
+In order to create your own subprocess, there are several variables
+that need to be set.  See the code for matlab-notebook-mode for an
+example.
+
+The variable @code{nb-adjust-input-string} should be a function that
+adjusts an input cell before it gets sent to the subprocess.  The hard
+part is getting the sub process to print out a tag for the beginning
+and end of a cell.
+It is called with STRING, BUFFER, and NAME.
+STRING is the string which should be sent.  BUFFER is the name of the
+notebook buffer. NAME is the name of the input cell.  Output from
+the process will have to be recognized by NAME and BUFFER.
+Some notebook modes will have one process that is shared by several
+buffers.  That is why the buffer name is also sent with the input.
+
+The variable @code{nb-adjust-output-string} should be a function that
+strips of any extra stuff from the subprocess output.  It can also
+adjust indentation or clean things up if it wants to.
+It is called with INPUT-START, INPUT-END
+ OUTPUT-START, OUTPUT-END, and CELL.  It should edit
+the current buffer between START and END.  CELL is the name of the cell. 
+
+The variable @code{nb-start-process} should be a function that starts
+the correct subprocess, or tries to find an existing process of the
+correct type.
+
+The variable @code{nb-cell-regexp}  is the regular expression which
+matches an entire cell. 
+The first character should be unusual, since this is sometimes
+used in searches.
+The first set of parenthesis should match the prompt.
+The second set should match either the cell name, or an empty string.
+The third should match the input part of the cell.
+The fourth should match the output part of the cell.
+
+
+The variable @code{nb-empty-cell-format}
+This is inserted as an initial empty cell.  It is passed to the lisp
+function @code{format} with the cell name as the argument.  For
+example, the shell notebook uses:
+@verbatim
+"\b%s>   \b  (no output yet)\b\n"
+@end verbatim
+
+The variable @code{nb-output-regexp}
+is a regular expression which matches the output from the
+process.
+The name of the buffer should match the first set of parentheses.
+The name of the cell should match the second pair of parentheses.
+The third set should match the useful part of the output.  
+
+
+
+@node Concept Index, Keystroke Index, Create Your Own, Top
 @comment  node-name,  next,  previous,  up
 @chapter Concept Index
 

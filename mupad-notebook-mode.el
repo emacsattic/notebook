@@ -17,9 +17,6 @@
 (defconst mupad-notebook-mode-map nil
   "Keymap for Mupad notebook mode.")
 
-(defconst mupad-process-list ()
-  "A list of currently running mupad processes."
-  )
 
 (defun mupad-notebook-mode ();This is a mupad.
   "Major mode for a Mupad notebook.  It is a combination of TeX mode

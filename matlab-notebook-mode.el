@@ -7,46 +7,50 @@
 (require 'notebook-mode)
 (require 'tex-mode)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; First, define a keymap to be used for the mode.
 
-(defconst matlab-notebook-mode-hook nil
-  "If this is non-nil, it is the hook that's run for a matlab notebook")
+(defvar matlab-notebook-mode-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map tex-mode-map)
+    (mb-setup-keymap map)
+    (define-key map "\C-c\C-f" 'tex-matlab-file)
+    (define-key map "\C-c>" 'matlab-toggle-prompt)
+    (define-key map [menu-bar tex tex-file]
+      '("Run TeX on Notebook" . tex-matlab-file))
+    map)
+  "The key map for matlab notebooks.")
 
-(defconst matlab-notebook-mode-syntax-table nil
-  "Syntax table used while in matlab notebook mode.")
-
-(defconst matlab-notebook-mode-map nil
-  "Keymap for Matlab notebook mode.")
-
-(defconst matlab-process-list ()
-  "A list of currently running matlab processes."
-  )
-
-(defun matlab-notebook-mode ();This is a matlab.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-derived-mode matlab-notebook-mode tex-mode "Matlab"
   "Major mode for a Matlab notebook.  It is a combination of TeX mode
 and Notebook mode.
+
+See documentation of `notebook-mode` for a description of a notebook,
+and cells.
 
 Special commands:
 \\{matlab-notebook-mode-map}
 
-See documentation for tex-mode for other commands."
-  (interactive)
+See documentation for tex-mode for other commands.
+
+In addition to `matlab-notebook-hook', and whatever hooks tex-mode runs, 
+`common-notebook-mode-hook' is also run.
+
+"
+
   (scratch "Running matlab notebook mode.\n")
-  (nb-start-tex-mode)			; Matlab mode uses tex mode commands.
   (nb-matlab-regexpressions)
   (setq nb-adjust-input-string matlab-notebook-adjust-input-string)
   (setq nb-adjust-output-string matlab-notebook-adjust-output-string)
   (setq nb-start-process matlab-start-process)
-  (notebook-mode)
-  (use-local-map matlab-notebook-mode-map)
+  (notebook-mode-initialize)
   (setq indent-tabs-mode nil)
   (setq nb-process (nb-find-matlab-process))
   (if nb-process
     (setq mode-line-process (format ": %s"
 				    (process-name nb-process)))
     )
-  (setq major-mode 'matlab-notebook-mode)
-  (setq mode-name "Matlab")
-  (run-hooks 'tex-mode-hook 'matlab-notebook-mode-hook)
   ) 
 
 
@@ -194,17 +198,6 @@ return nil."
 process will be started, even if an old one already exists.  "
   )
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defvar matlab-notebook-mode-map nil "Keymap for matlab mode.")
-(setq matlab-notebook-mode-map (copy-keymap tex-mode-map))
-(nb-setup-keymap matlab-notebook-mode-map)
-(define-key matlab-notebook-mode-map "\C-c\C-f" 'tex-matlab-file)
-(define-key matlab-notebook-mode-map "\C-c>" 'matlab-toggle-prompt)
-
-
-(define-key matlab-notebook-mode-map
-  [menu-bar tex tex-file]
-  '("Run TeX on Notebook" . tex-matlab-file))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Convert to TeX and run TeX on the file:
@@ -244,9 +237,9 @@ process will be started, even if an old one already exists.  "
   )
 
 ;; This starts tex-mode, and then modifies it a bit.
-(defun nb-start-tex-mode ()		
-  (tex-mode)				; run tex.
-  )
+;;; XXX (defun nb-start-tex-mode ()		
+;;;  (tex-mode)				; run tex.
+;;;  )
 
 (defun matlab-to-tex-name (name)
   (string-match "\\(.*\\)\.m" name)	; anything before the .m

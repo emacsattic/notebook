@@ -16,10 +16,6 @@
 (defconst octave-notebook-mode-map nil
   "Keymap for Octave notebook mode.")
 
-(defconst octave-process-list ()
-  "A list of currently running octave processes."
-  )
-
 (defun octave-notebook-mode ();This is a octave.
   "Major mode for a Octave notebook.  It is a combination of TeX mode
 and Notebook mode.

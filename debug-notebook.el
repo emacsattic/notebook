@@ -62,17 +62,6 @@
 ;;;(global-set-key [f3] 'turn-debug-on)
 ;;;(global-set-key [f4] 'turn-debug-off)
 
-;;;(global-set-key  [f1] 'nb-redo-notebook-mode) ; for debugging.
-;;;(global-set-key [f2] 'nb-turn-off-mode) ; for debugging.
-(defun nb-redo-notebook-mode ()
-  "Reload this file and convert to notbook mode."
-  (interactive)
-  (nb-turn-off-mode)
-  (save-excursion
-    (set-buffer (find-file-noselect "~/source/emacs/notebook/notebook.el"))
-    (eval-buffer))
-  (notebook-mode)
-  )
 
 (defun kill-all-overlays (list)
   (if list

@@ -14,13 +14,13 @@ Some useful keys:
 	C-c C-d -- Delete this cell.
 
 2> uptime  
- 10:49pm  up  1:22,  0 users,  load average: 0.14, 0.18, 0.21
+ 11:23pm  up 54 min,  0 users,  load average: 0.01, 0.13, 0.12
 
 3> sleep 10  
 
 4> who  
 
-
+This is some text.
 7> /bin/ls  
 COPYING        README			notebook-mode.el	 samp5-b.matlab
 Documentation  TODO			notebook.texi		 samp5.matlab

@@ -40,6 +40,7 @@ notebook-$(VERSION).tgz: $(DISTFILES)
 	tar -czf $@ $(distdir)
 
 
+
 clean:
 	rm -rf notebook.dvi notebook.info $(distdir) 
 	rm -rf samp5.tex samp5.dvi samp5.log samp5.aux

@@ -16,7 +16,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Some standard variables.
 
-(defconst notebook-mode-hook nil
+(defvar notebook-mode-hook nil
   "If this is non-nil, it is the hook that's run for any notebook")
 (make-variable-buffer-local 'notebook-mode-hook)
 
@@ -45,13 +45,12 @@ the process.  It is called with INPUT-START, INPUT-END
 the current buffer between START and END.  CELL is the name of the cell. ")
 (make-variable-buffer-local 'nb-adjust-output-string)
 
-(defconst nb-display-table nil
+(defconst nb-display-table (make-display-table)
   "The display table for buffer.")
-(setq nb-display-table (make-display-table))
 (aset nb-display-table 12 (vector 124))	; A bar for the special character
 (aset nb-display-table 8 (vector 124))	; A bar for the special character
 
-(defconst nb-cell-list nil
+(defvar nb-cell-list nil
   "A list of cells for this buffer.")
 (make-variable-buffer-local 'nb-cell-list)
 
@@ -68,7 +67,7 @@ the current buffer between START and END.  CELL is the name of the cell. ")
 The first character should be unusual, since this is sometimes
 used in searches.
 The first set of parenthesis should match the prompt.
-The second set should match either the name, or an empty string.
+The second set should match either the cell name, or an empty string.
 The third should match the input part of the cell.
 The fourth should match the output part of the cell.")
   (make-variable-buffer-local 'nb-cell-regexp)
@@ -96,41 +95,7 @@ The third set should match the useful part of the output.  ")
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun notebook-mode () 
-  "This is the major mode for a notebook."
-  (interactive)
-  (scratch "Running notebook mode.\n")
-  (put 'funney-mode 'mode-class 'special) ; This mode uses special text.
-  ;; Set up local variables.
-  (setq major-mode 'notebook-mode)
-  (setq mode-name "Notebook")
-
-  ;; Set up keymap.
-  (use-local-map notebook-mode-map)
-  (setq buffer-display-table nb-display-table) ; Use brackets for characters.
-  (setq nb-cell-list nil)
-  (nb-initialize-cells (point-min) (point-max))
-  (if nb-process
-      (setq mode-line-process (format ": %s" (process-status nb-process)))
-    (setq mode-line-process ": no proc.")
-    )
-  (scratch (format "nb-cell-regexp = %s, aref = %s\n" nb-cell-regexp
-		   (aref nb-cell-regexp 0)))
-		   
-  (setq paragraph-start			;A paragraph starts with:
-	(concat paragraph-start		; what ever it did before.
-		"\\|"  (char-to-string
-			(aref nb-cell-regexp 0)) ; A cell can start a paragraph.
-		))
-  (setq paragraph-separate		; But it can't separate one.
-	(concat paragraph-separate
-		))
-  (run-hooks 'text-mode-hook 'notebook-mode-hook)
-  )					; end of notebook-mode
-
-	       
-(defun  nb-setup-keymap (keymap)
+(defun nb-setup-keymap (keymap)
   (define-key keymap "\n"     'newline)
   (define-key keymap "\e\t"     'nb-next-cell)
   (define-key keymap "\e\r" 'nb-send-input-forward)
@@ -160,10 +125,105 @@ The third set should match the useful part of the output.  ")
     '("New Cell" . nb-create-cell))
   (define-key keymap [menu-bar notebook nb-delete-cell-and-text]
     '("Delete Cell" . nb-delete-cell-and-text))
+  keymap
   )
-(defvar notebook-mode-map nil "Keymap for notebook mode.")
-(setq notebook-mode-map (make-sparse-keymap))
-(nb-setup-keymap notebook-mode-map)
+
+(defvar notebook-mode-map (nb-setup-keymap (make-sparse-keymap))
+  "Keymap for notebook mode.")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define-derived-mode notebook-mode fundamental-mode "Notebook"
+  "Major mode for editing a bash shell notebook.  
+
+\\<notebook-mode-map>
+This mode is used to edit input to, and output from, a sub process. The
+sub-process is a bash shell, but try `\\[apropos-command notebook-mode]' for
+some notebook modes for other programs, such as matlab or octave. 
+
+The notebook has a collection of cells, consisting of a prompt, an input region
+and an output region.  You tell Emacs to send a cell to the process (using
+\\[nb-send-input] or \\[nb-send-input-forward]) and when the process responds,
+it will paste the output in to the output region.  You can then go back and
+edit other cells and re-enter them.  Between the cells is regular text, which
+you can do with as you wish.
+
+------------------------------------
+
+Here is a list of some useful commands:
+
+\\[nb-send-input]
+Sends the cell at (or just before) point to the sub-process.  If the process is
+not running, it is started.
+
+\\[nb-next-cell]
+Move point the the beginning of the next cell's input.  If there is no
+cell after point, a new cell is created.
+
+\\[nb-create-cell]
+Create a new cell at point.  If point is currently in a cell, a new
+cell is created on the next line.
+
+\\[nb-send-input-forward]
+First enter the current cell, and then move to the next cell. 
+The same as typing \\[nb-send-input] followed by \\[nb-next-cell]
+
+\\[nb-send-input-and-create]
+First enter the current cell, and then create a new cell immediately afterwards.
+The same as typing \\[nb-send-input] followed by \\[nb-create-cell]
+
+\\[nb-send-input-region]
+Send all cells in the current region to the process.  If the process
+is not running, it is started first.
+
+\\[nb-send-input-buffer]
+Send all cells in the buffer to the process.  If the process
+is not running, it is started first.
+
+\\[nb-delete-cell-and-text]
+Delete the cell at point: both the input and output region.
+
+\\[nb-kill-process]
+Kill the process.
+
+\\[nb-start-process]
+Re-start the process. 
+
+
+
+Entry to this mode calls the value of `notebook-mode-hook'
+if that value is non-nil."
+
+  (scratch "Running notebook mode.\n") 
+  (notebook-mode-initialize))
+
+
+(defun notebook-mode-initialize ()
+  "This initializes notebook-mode and its variants."
+  (scratch "Initializing notebook mode.\n") 
+  (put 'funney-mode 'mode-class 'special) ; This mode uses special text.
+  (setq buffer-display-table nb-display-table) ; Use brackets for characters.
+  (setq nb-cell-list nil)
+  (nb-initialize-cells (point-min) (point-max))
+  (if nb-process
+      (setq mode-line-process (format ": %s" (process-status nb-process)))
+    (setq mode-line-process ": no proc.")
+    )
+  (scratch (format "nb-cell-regexp = %s, aref = %s\n" nb-cell-regexp
+		   (aref nb-cell-regexp 0)))
+  
+  (setq paragraph-start			;A paragraph starts with:
+	(concat paragraph-start		; what ever it did before.
+		"\\|"  (char-to-string
+			(aref nb-cell-regexp 0)) ; A cell can start a paragraph.
+		))
+  (setq paragraph-separate		; But it can't separate one.
+	(concat paragraph-separate
+		))
+  (run-hooks 'common-notebook-mode-hook)
+  )
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Basic cell manipulation:
 
