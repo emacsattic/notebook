@@ -24,9 +24,9 @@
   (lambda (string buffer name)
     ;; (scratch (format "Adjusting %s from cell %s.\n" string name))
     (replace-regexp-in-string
-     "^\\s-*;" "" 
+     "^\\s-*;" "" 			; remove blank lines with semicolons.
      (replace-regexp-in-string
-      "\\s-*;\\(\\s-*;\\)*" ";" 
+      "\\s-*;\\(\\s-*;\\)*" ";" 	;replace several semicolons with only one.
       (concat "echo -e \"\\fBegin " buffer " " name "\";" string
 	      "; echo -e \"\\fEnd " name "\";\n")))
     )
@@ -423,7 +423,7 @@ the start of the cell text.  The new cell is returned."
 	(overlay-put prompt 'cell cell) 
 	(overlay-put  input 'cell cell) 
 	(overlay-put output 'cell cell) 
-	cell
+	cell				;return the cell.
 	)
       ))      
   )
@@ -467,14 +467,13 @@ is created on the following line."
   (insert-before-markers		; Insert text for a new cell.
    (format nb-empty-cell-format		
 	   (funcall nb-name-new-cell)))
-  (nb-initialize-one-cell pos)		; Create cell data for this cell.
-  (goto-char pos)			; Go back to the start.
-  (looking-at nb-cell-regexp)		; Find the match data.
-  (goto-char (match-beginning 3))	; Leave point at the start of the input data.
-  (save-excursion
-    (indent-according-to-mode))       ; Finally, leave this cell looking nice.
-  ;;; PENDING -- return the new cell.
-  )
+  (let ((cell (nb-initialize-one-cell pos))) ; Create cell data for this cell.
+    (goto-char pos)			; Go back to the start.
+    (looking-at nb-cell-regexp)		; Find the match data.
+    (goto-char (match-beginning 3))	; Leave point at the start of the input data.
+    (save-excursion
+      (indent-according-to-mode))       ; Finally, leave this cell looking nice.
+    cell))				; return the newly created cell. 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Colors:
@@ -570,25 +569,29 @@ Used for cells that have had an error state returned."
   "Goto the the beginning of the cell after POSITION.
 COUNT is the number of times to repeat this. If there is no next cell,
 one is created.
-However, if no-create is t, then it moves to point-max." 
+However, if no-create is t, then it moves to point-max.
+It returns the cell, or nil if no cell was found." 
   (interactive "d\np")
   (goto-char position)
   (if (null count)
-      (setq count 1))
+      (setq count 1))  
   (if (and (nb-find-cell-by-position position nil) ;If we are in a cell.
 	   (> (match-beginning 3) position)) ; And before the input part.
       (goto-char (match-beginning 0)))	; Include this cell in the search.
   ;; Then, search forward.
   (if (re-search-forward nb-cell-regexp nil t count)
-      (goto-char (match-beginning 3))
+      (nb-find-cell-by-position (goto-char (match-beginning 3)) nil) ;return cell.
     ;; Otherwise, Go as far forward as we can, and create a new one.
     (while (re-search-forward nb-cell-regexp nil t)
       (goto-char (+ 1 (match-end 0))))
     ;;
     (if no-create
-	(goto-char (point-max))
+	(progn
+	  (goto-char (point-max))
+	  ()				;return nil.
+	  )
       (forward-line 1)
-      (nb-create-cell (point))
+      (nb-create-cell (point))		;return the new cell.
       )
     )
   )
@@ -650,6 +653,18 @@ If there is no cell at or before this position, nothing is sent."
 		  (buffer-substring (match-beginning 3) (match-end 3)))
 	    ;;(scratch (format "Sending %s from cell '%s'.\n"
 	    ;;	     string (nb-cell-name cell)))
+	    (if (boundp 'notebook-debug-input-buffer)
+		(save-excursion
+		    (set-buffer notebook-debug-input-buffer)
+		  (goto-char (point-max))
+		  (insert (concat "<<" string ">>  -> <<"
+				  (if nb-adjust-input-string
+				      (funcall nb-adjust-input-string string
+					       (buffer-name) (nb-cell-name cell))
+				    (string))
+				  ">>"))
+		  ))			; end debugging statements.
+
 	    (process-send-string
 	     nb-process
 	     (if nb-adjust-input-string
@@ -715,6 +730,8 @@ currently running process. (This doesn't work for the shell notebook.)"
 ;    (process-send-string nb-process
 ;			 "alias ls='ls --no-color'\n")
     (process-send-string nb-process "PS1=\"\"\n")
+    (process-send-string nb-process "export TERM=unknown\n")
+    (process-send-string nb-process "PROMPT_COMMAND=\"\"\n")
     (setq mode-line-process ": run")
     (save-excursion
       (let ((oldbuf (current-buffer))
@@ -747,6 +764,12 @@ currently running process. (This doesn't work for the shell notebook.)"
   (let ((old-buffer (current-buffer)))
     (unwind-protect
 	(let ((beg) (end))
+	  (if (boundp 'notebook-debug-output-buffer)
+	      (save-excursion
+		(set-buffer notebook-debug-output-buffer)
+		(goto-char (point-max))
+		(insert string)
+		))
 	  (set-buffer (process-buffer proc)) ;Go to the processes buffer.
 	  (save-excursion
 	    (goto-char (point-max))
@@ -965,7 +988,7 @@ characters, '#', added to the beginning of each line.
     (setq filename (buffer-file-name))
     (if (equal filename notebook-name)
 	(setq filename (concat (file-name-sans-extension filename)
-			       nb-shell-script-extension))
+ 			       nb-shell-script-extension))
       )
     (setq script-buffer (find-file filename))
     (setq filename (buffer-file-name))
@@ -977,6 +1000,8 @@ characters, '#', added to the beginning of each line.
     (previous-line 1)
 					;make everything a comment.
     (replace-string "\n" "\n# " )
+    (goto-char (point-min))
+    (replace-string "-*- notebook -*-" "" )
     (goto-char (point-min))
     (while (re-search-forward cell-regexp nil t)
       (setq cell (buffer-substring-no-properties (match-beginning 3)

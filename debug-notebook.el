@@ -12,6 +12,7 @@
 (global-set-key [M-f4] 'nb-reload-modes) ; for debugging.
 (global-set-key [M-f3] 'nb-redo-octave-mode) ; for debugging.
 (global-set-key [M-f8] 'nb-find-cell-by-position) ; for debugging.
+(global-set-key [M-f7] 'nb-add-debug-buffer) ; for debugging.
 
 (defun nb-reload-modes ()
   "Reload the notbook modes."
@@ -103,3 +104,11 @@
         (set-buffer "*scratch*")
         (goto-char (point-max))
         (insert string))))
+
+(defun nb-add-debug-buffer (name)
+  "Create a debug buffer for debugging input-output"
+  (interactive "Mbuffer name:")
+  (setq notebook-debug-input-buffer (get-buffer-create (concat name "-input")))
+  (setq notebook-debug-output-buffer (get-buffer-create (concat name "-output")))
+  )
+

@@ -1,3 +1,12 @@
+2002-10-28  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* notebook-mode.el (nb-start-process): Sets the terminal type to
+	unknown.  This should stop /bin/ls from trying to use color. Also,
+	set PROMPT_COMMAND to null, so that it doesn't mess up the output.
+	(nb-create-cell): It now returns the cell that was just created.
+	(nb-next-cell): It now returns the cell, or nil if one wasn't found.
+	(notebook-to-script): Remove -*- notebook -*- mode from script.
+
 2002-10-22  Fred Gylys-Colwell  <fredgc@member.ams.org>
 
 	* debug-notebook.el (scratch): moved to debug-notebook, since it
