@@ -18,3 +18,8 @@ I think this means get rid of overlays.  (Use text properties instead?)
 Add a syntax table that gets turns \b and ^H into a non-whitespace character.
 ----------
 Use keymap property in input/output regions to handle special keys.
+----------
+Buffer names with spaces in them cause problems.  bummer.  Perhaps that should
+be fixed. -- I think I fixed for shell, octave and matlab modes.
+I haven't tested matlab, becuase I no longer have access to matlab.
+
