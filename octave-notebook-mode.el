@@ -287,7 +287,7 @@ process will be started, even if an old one already exists.  "
 	      (if (equal "" body) ()	;no output
 		(insert " \\, (" ))	;there was output preface it.
 	      (goto-char (match-beginning 0))
-	      (delete-char 3)
+	      (delete-region  (match-beginning 0) (match-end 1))
 	      (insert "{ \\tt ")
 	      )
 					; long form.

@@ -9,6 +9,7 @@
 
 (global-set-key [M-f4] 'nb-reload-modes) ; for debugging.
 (global-set-key [M-f3] 'nb-redo-octave-mode) ; for debugging.
+(global-set-key [M-f8] 'nb-find-cell-by-position) ; for debugging.
 
 (defun nb-reload-modes ()
   "Reload the notbook modes."

@@ -2,7 +2,7 @@
 %   $Id$
 % It has some tex commands.
 	
-\documentclass{notebook}
+\documentclass{article}
 \begin{document}
 
 Type C-c C-f to run convert this to {\tt samp5.tex}, and then run latex on it. 

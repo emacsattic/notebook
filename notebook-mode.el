@@ -291,6 +291,7 @@ If strict is nil, it finds the cell before or containing POS, otherwise
 it finds the cell strictly containing POS. It returns nil if there is no
 such cell.
 It uses (looking-at) to set match data just before returning."
+  (interactive "d")
   (let ((cell) (magic-character (substring nb-cell-regexp 0 1)) (overlays))
     ;;(scratch (format "Looking for cell at %d.  " pos))
     (save-excursion
@@ -298,7 +299,6 @@ It uses (looking-at) to set match data just before returning."
       (while (and (not (looking-at nb-cell-regexp))
 		  (search-backward magic-character nil t)
 		  ))
-      ;;(scratch "Found (")
 ;; PENDING -- this was the old methd.
 ;;       (while list
 ;; 	(if (not (equal (point) (marker-position (nb-cell-begin (car list)))))
@@ -311,19 +311,20 @@ It uses (looking-at) to set match data just before returning."
       (while (and overlays (not cell))
 	(setq cell (overlay-get (car overlays) 'cell))
 	(setq overlays (cdr overlays)))
-
+      
       (if (not cell)			;if no cell was found.
 	  (if (looking-at nb-cell-regexp)
 	      ;; This is probably an error: looking at a cell that is not on
 	      ;; the list.  So we will just add it quietly to the list:
-	      (nb-initialize-one-cell (point)) 
+	      (setq cell (nb-initialize-one-cell (point)))
 	       ()			; Not looking at a cell.  return quietly.
 	       )				; return null if no cell found.
 	(looking-at nb-cell-regexp)
 	;;(scratch (format ") %s is from %d to %d. "
 	;;		 (nb-cell-name cell) (match-beginning 0) (match-end 0)))
 	(if (and strict (> pos (match-end 0))) ; not before the end of cell...
-	    (setq cell nil))
+	    (setq cell nil)
+	  )
 	;;(scratch (format "cell-by-pos is %s.\n" (nb-cell-name cell)))
 	cell				;return the result.
 	))))
