@@ -1,0 +1,37 @@
+\documentclass{article}
+
+\begin{document}
+\begin{center} \large
+Sample Fake Notebook \\
+\end{center}
+
+
+This is just to see how notebook-to-tex works.  Do try to run this.
+
+
+>>dog=$PATH + { one, two }    --no output yet-- 
+>>This is two lines of
+input.   --no output yet-- 
+>>This is two lines of
+input. With a \TeX. 
+and two lines of output.
+output has a \TeX too.
+
+This is right after those two.
+
+Here is a short prompt:
+>dog=$PATH + { one, two }    --no output yet-- 
+And another.
+>This is two lines of
+input.   --no output yet-- 
+And another
+>This is two lines of
+input. With a \TeX. 
+and two lines of output.
+output has a \TeX too.
+
+That was the end of the stuff.
+
+\end{document}
+
+

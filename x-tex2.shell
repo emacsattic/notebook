@@ -1,0 +1,31 @@
+\documentclass{article}
+
+\begin{document}
+\begin{center} \large
+Sample Shell Script \\
+\end{center}
+
+This is a sample shell script.  Let $\theta = 3.2$.
+Then
+>>theta=3.2   
+This is part of the comment text.  Now what is $\theta$.
+>echo what is theta? oh.  it is $theta  
+what is theta? oh. it is 3.2
+
+Notice the following uses a short prompt.
+>echo Is FDGC a keyword?   
+Is FDGC a keyword?
+
+It is embedded in the line.
+>FDGC=1234   
+Can the following be embedded, with it's dollar sign?
+>echo FDGC =  $FDGC  
+FDGC = 1234
+
+
+>>  
+
+
+\end{document}
+
+

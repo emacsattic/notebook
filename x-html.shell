@@ -1,0 +1,50 @@
+<html> <head>
+<title>Sample Shell Notebook Using HTML</title> 
+</head>
+<body>
+Is FDGC a keyword?
+
+Here is the cell:
+>>echo is FDGC a keyword?  
+is FDGC a keyword?
+
+
+<p>
+Here is some embedded output:
+
+>z=$HOME   
+
+And another is here: >echo $z   
+/home/fredgc
+
+That was the end.
+
+<p> Here is another input.
+>> ls > /dev/null  
+>> cat < /dev/null  
+>> sleep 2  
+
+>>ls  
+auto			 notebook-1.1.tgz	  samp6.shell	  x-plain.shell
+ChangeLog		 notebook-1.2.tgz	  samp7.fs	  x-tex2.aux
+color.shell		 notebook-1.3.tgz	  samp8.aux	  x-tex2.dvi
+COPYING			 notebook.html		  samp8.dvi	  x-tex2.log
+CVS			 notebook.info		  samp8.log	  x-tex2.shell
+debug-notebook.el	 notebook-mode.el	  samp8.octave	  x-tex2.tex
+font-lock-debug.el	 notebook.texi		  samp8.tex	  x-tex.aux
+fontlock-notebook.el	 NOTEs			  samp.mu	  x-tex.dvi
+INSTALL			 octave-notebook-mode.el  TODO		  x-tex.log
+junk.m			 old-notebook-mode.el	  version.texi	  x-tex.shell
+Makefile		 README			  x-html.html	  x-tex.tex
+matlab-notebook-mode.el  samp4.sh		  x-html.log	  z.shell
+mmm-stuff.el		 samp4.shell		  x-html.shell
+mupad-notebook-mode.el	 samp5-b.matlab		  x-plain2.shell
+notebook-1.0.tgz	 samp5.matlab		  x-plain2.txt
+
+>>    (no output yet) 
+
+
+</body>
+
+</html>
+

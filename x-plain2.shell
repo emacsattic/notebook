@@ -1,0 +1,32 @@
+
+>>z=$HOME	  
+>>ls  
+auto			 notebook-1.2.tgz	  samp7.fs
+ChangeLog		 notebook-1.3.tgz	  samp7.tex
+color.shell		 notebook.html		  samp7.txt
+COPYING			 notebook-mode.el	  samp8.octave
+CVS			 notebook.texi		  samp.mu
+debug-notebook.el	 NOTEs			  TODO
+font-lock-debug.el	 octave-notebook-mode.el  version.texi
+INSTALL			 old-notebook-mode.el	  x-html.shell
+junk.m			 README			  x-plain2.shell
+Makefile		 samp4.sh		  x-plain.shell
+matlab-notebook-mode.el  samp4.shell		  x-tex2.shell
+mupad-notebook-mode.el	 samp5-b.matlab		  x-tex.shell
+notebook-1.0.tgz	 samp5.matlab		  z.shell
+notebook-1.1.tgz	 samp6.shell
+
+This is a sample shell script. With text mode.
+
+
+>>date  
+Wed Feb 19 21:38:12 PST 2003
+
+
+>>time sleep 20  
+real	0m20.008s
+user	0m0.000s
+sys	0m0.000s
+
+>>  
+>>    

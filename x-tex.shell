@@ -1,0 +1,17 @@
+\documentclass{article}
+
+\begin{document}
+\begin{center} \large
+Sample Shell Script \\
+\end{center}
+
+This is a sample shell script.  Let $\theta = 3.2$.
+
+It has no cells.  But it has a quote "hello there".
+and a comment. % this is the comment.
+
+Is FDGC a keyword?
+
+\end{document}
+
+

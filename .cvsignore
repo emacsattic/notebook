@@ -1,3 +1,5 @@
-*.tar.gz
+*.tgz
 auto
+*.info
+junk*
 
