@@ -865,13 +865,13 @@ Used for cells that have had an error state returned."
 
 ;;; Cleaning output.
 
-(defun nb-clean-output-buffer ()
+(defun nb-clear-output-buffer ()
   "Erase all the output of all cells in the buffer."
   (interactive)
-  (nb-clean-output-region (point-min) (point-max))
+  (nb-clear-output-region (point-min) (point-max))
   )
 ;;
-(defun nb-clean-output-region (beg end)
+(defun nb-clear-output-region (beg end)
   "Send all of the cells in the region to the process."
   (interactive "r")
   (if (< end beg)
