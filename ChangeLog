@@ -1,5 +1,8 @@
 2002-10-22  Fred Gylys-Colwell  <fredgc@member.ams.org>
 
+	* debug-notebook.el (scratch): moved to debug-notebook, since it
+	shouldn't really be in production code.
+
 	* octave-notebook-mode.el (tex-octave-file): When creating the TeX
 	file, it removed an extra character from the short prompt.  This
 	is no longer done.

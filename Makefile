@@ -17,7 +17,7 @@ LISP = notebook-mode.el \
 SAMPLES = samp4.shell samp5.matlab samp5-b.matlab samp6.shell 
 
 DISTFILES = $(LISP) $(SAMPLES) COPYING INSTALL Makefile notebook.info notebook.texi \
-	README TODO debug-notebook.el version.texi samp8.octave  samp4.shell
+	README TODO debug-notebook.el version.texi samp8.octave samp4.shell
 
 all: notebook.info
 

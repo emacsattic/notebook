@@ -574,10 +574,11 @@ Used for cells that have had an error state returned."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Movement:
 
-(defun nb-next-cell (position &optional count)
+(defun nb-next-cell (position &optional count no-create)
   "Goto the the beginning of the cell after POSITION.
 COUNT is the number of times to repeat this. If there is no next cell,
-one is created." 
+one is created.
+However, if no-create is t, then it moves to point-max." 
   (interactive "d\np")
   (goto-char position)
   (if (null count)
@@ -592,8 +593,11 @@ one is created."
     (while (re-search-forward nb-cell-regexp nil t)
       (goto-char (+ 1 (match-end 0))))
     ;;
-    (forward-line 1)
-    (nb-create-cell (point))
+    (if no-create
+	(goto-char (point-max))
+      (forward-line 1)
+      (nb-create-cell (point))
+      )
     )
   )
   
@@ -992,14 +996,3 @@ characters, '#', added to the beginning of each line.
       )
     ))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; DEBUGGING COMMANDS:
-
-;; Other debugging commands are in debug-notebook.el
-(defun scratch (string)
-  (if debug-on-error 
-      (save-excursion
-        (set-buffer "*scratch*")
-        (goto-char (point-max))
-        (insert string))))

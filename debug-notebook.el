@@ -5,6 +5,8 @@
 ;; I just put some junk code here so that I can debug the notebook mode.
 ;; You should not install this stuff for real use.
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; DEBUGGING COMMANDS:
 
 (global-set-key [M-f4] 'nb-reload-modes) ; for debugging.
@@ -95,3 +97,9 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun scratch (string)
+  (if debug-on-error 
+      (save-excursion
+        (set-buffer "*scratch*")
+        (goto-char (point-max))
+        (insert string))))
