@@ -1,0 +1,58 @@
+<HTML><head>
+<TITLE>Emacs Notebook Mode</TITLE>
+</head> <body>
+
+<H1>Emacs Notebook Mode</H1>
+
+<p>
+This is a simple notebook mode for 
+<a href="http://www.gnu.org/software/emacs/emacs.html"> Emacs</a>. 
+(Since it uses faces to change colors and read/write attributes of text, it
+will not work with XEmacs.)
+</p>
+
+<p>
+Notebook mode sets up a sub process that has well defined input and output
+responses.
+Each notebook has a collection of cells, consisting of a prompt, an
+input region and an output region.  You tell Emacs to send a cell to the
+process (using C-Enter or M-Enter with my default key bindings) and when the
+process responds, it will paste the output in to the output region.
+You can then go back and edit other cells and re-enter them.
+Between the cells is regular text, which you can do with as you wish. 
+</p>
+
+<p> This is different from the standard shell mode, because you may send
+several input regions at once, and the output will be sorted out and pasted
+next to its corresponding input.
+</p>
+
+<p>
+This idea of a notebook with cells is popular with programs such as Matlab,
+Maple or Mathematica.  I use it with matlab, and then pipe the notebook through
+latex, so that I can write up what I'm computing, while I compute it.
+</p>
+
+
+<p> See the Source Forge
+<a href="http://sourceforge.net/projects/notebook/">project</a> page for
+up-to-date information, and downloads, and the CVS repository.
+</p>
+
+<hr>
+<center>
+<A href="http://sourceforge.net"> <IMG
+                      src="http://sourceforge.net/sflogo.php?group_id=64583"
+                      width="88" height="31" border="0" alt="SourceForge Logo"></A>
+
+<br>
+
+<ADDRESS>
+<a href="http://www.ktb.net/~fredgc">Fred Gylys-Colwell</a>
+----
+ <a href="mailto:fredgc@member.ams.org">fredgc@users.sourceforge.net</a>
+</ADDRESS>
+<!-- hhmts start -->
+Last Revised: October 13, 2002
+<!-- hhmts end -->
+</body> </html>
