@@ -168,7 +168,7 @@ Re-start the process.
 @cindex matlab-mode
 
 
-This runs @code{matlab} as the proces instead of the @code{bash}.
+This runs @code{matlab} as the process instead of the @code{bash}.
 In addition to the commands available to a generic notebook, the
 following commands might also be useful.  These are really only useful
 if you want to embed output from matlab into a latex document.
@@ -178,7 +178,7 @@ if you want to embed output from matlab into a latex document.
 @item C-c C-f
 @kindex @kbd{C-c C-f}
 Generate a LaTeX file with the same name as this buffer, except the
-extension is changed to @code{.tex}.  The input cells are imbedded
+extension is changed to @code{.tex}.  The input cells are embedded
 into special tex code that prints them with little formatting, and in
 the @code{tt} font.  If the prompt is @samp{>>}, then the cell is
 displayed verbatim, on a new line by itself.

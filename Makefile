@@ -41,7 +41,7 @@ notebook-$(VERSION).tgz: $(DISTFILES)
 
 sourceforge: notebook-$(VERSION).tgz
 	scp notebook.html fredgc@shell.sourceforge.net:/home/groups/n/no/notebook/htdocs/index.html
-	ncftp -u fredgc@users.sourceforge.net  upload.sourceforge.net /incoming notebook-$(VERSION).tgz
+	ncftpput -p  fredgc@users.sourceforge.net  upload.sourceforge.net /incoming notebook-$(VERSION).tgz
 
 
 clean:
