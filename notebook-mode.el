@@ -446,8 +446,8 @@ is created on the following line."
   (looking-at nb-cell-regexp)		; Find the match data.
   (goto-char (match-beginning 3))	; Leave point at the start of the input data.
   ;; PENDING  -- this breaks something?
-  (indent-according-to-mode))		; Finally, leave this cell looking nice.
-
+  (save-excursion
+    (indent-according-to-mode)))       ; Finally, leave this cell looking nice.
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
