@@ -19,24 +19,24 @@
   "The key map for octave notebooks.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-derived-mode matlab-notebook-mode tex-mode "Matlab"
-  "Major mode for a Matlab notebook.  It is a combination of TeX mode
+(define-derived-mode ocatave-notebook-mode tex-mode "Ocatave"
+  "Major mode for a Ocatave notebook.  It is a combination of TeX mode
 and Notebook mode.
 
 See documentation of `notebook-mode` for a description of a notebook,
 and cells.
 
 Special commands:
-\\{matlab-notebook-mode-map}
+\\{ocatave-notebook-mode-map}
 
 See documentation for tex-mode for other commands.
 
-In addition to `matlab-notebook-hook', and whatever hooks tex-mode runs, 
+In addition to `ocatave-notebook-hook', and whatever hooks tex-mode runs, 
 `common-notebook-mode-hook' is also run.
 
 "
 
-  ;;(scratch "Running matlab notebook mode.\n")
+  ;;(scratch "Running ocatave notebook mode.\n")
   (nb-octave-regexpressions)
   (setq nb-adjust-input-string octave-notebook-adjust-input-string)
   (setq nb-adjust-output-string octave-notebook-adjust-output-string)
@@ -52,19 +52,18 @@ In addition to `matlab-notebook-hook', and whatever hooks tex-mode runs,
 
 
 (defun nb-octave-regexpressions ()
-  "Set regular expressions for octave mode."
+  "Set regular expressions for octave like mode."
   (let ( (name "\\([^ \t\n\b\f)(]*\\)")	; Possible name of function or cell.
 	 (ws "\\s *")			; Whitespace.
 	 (body "\\([^\b]*\\)")		; Body of input or output region.
 	 )
     (setq nb-cell-regexp
-	  (concat "\b\\(>>? \\)" 	; Prompt
+	  (concat "\b\\(>>?\\)" 	; Prompt
 		  "\\(\\)"		; No name in prompt.
 		  body  "\b" body "\b" ; input and output.
 		  ))
-    (setq nb-prompt-format ">> ")
     (setq nb-empty-cell-format
-	  (concat "\b>>   \b\n(no output yet)\b\n"))
+	  (concat "\b>>  \b\n(no output yet)\b\n"))
     (setq nb-output-regexp
 	  (concat "Begin" ws name ws name
 		  "\n\\([^\f]*\\)" ws	;Body of output
@@ -211,7 +210,7 @@ process will be started, even if an old one already exists.  "
   "Set the default to be short prompts."
   (interactive)
   (setq nb-empty-cell-format
-	(concat "\b>>   \b\n(no output yet)\b\n"))
+	(concat "\b>>  \b\n(no output yet)\b\n"))
   )
 
 (defun octave-toggle-prompt (pos)
@@ -226,7 +225,7 @@ process will be started, even if an old one already exists.  "
 	(setq prompt (nb-cell-prompt-overlay cell))
 	(goto-char (match-beginning 1))
 	(overlay-put prompt 'modification-hooks  nil)
-	(if (looking-at ">> ") 
+	(if (looking-at ">>") 
 	    (delete-char 1)
 	  (insert ">")
 	  )
@@ -264,7 +263,7 @@ process will be started, even if an old one already exists.  "
       (goto-char (point-min))		; Get rid of special characters
       (while (re-search-forward cell-regexp nil t)
 	;; Check to see if this is short input:
-	(if (equal "> " (buffer-substring (match-beginning 1)
+	(if (equal ">" (buffer-substring (match-beginning 1)
 					(match-end 1)))
 	    (let ((body (buffer-substring ;short form.
 			(match-beginning 4) (match-end 4))))

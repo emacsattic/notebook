@@ -60,13 +60,12 @@ In addition to `mupad-notebook-hook', and whatever hooks tex-mode runs,
 	 (body "\\([^\b]*\\)")		; Body of input or output region.
 	 )
     (setq nb-cell-regexp
-	  (concat "\b\\(>> \\)" 	; Prompt
+	  (concat "\b\\(>>\\)" 	; Prompt
 		  "\\(\\)"		; No name in prompt.
 		  body  "\b" body "\b" ; input and output.
 		  ))
-    (setq nb-prompt-format ">> ")
     (setq nb-empty-cell-format
-	  (concat "\b>>   \b\n(no output yet)\b\n"))
+	  (concat "\b>>  \b\n(no output yet)\b\n"))
     (setq nb-output-regexp
 	  (concat "\"Begin" ws name ws name "\""
 		  "\\([^\f]*\\)" ws		;Body of output
@@ -118,7 +117,7 @@ In addition to `mupad-notebook-hook', and whatever hooks tex-mode runs,
 	  )
 	;;(scratch "removing prompts ")
 	(goto-char beg)                   ; strip all prompts.
-	(while (re-search-forward  "\\s *>> \\$.*\n" end t) 
+	(while (re-search-forward  "\\s *>>\\$.*\n" end t) 
 	  ;;(scratch "- ")
 	  (delete-region (match-beginning 0) (match-end 0)) )
 	(goto-char beg)                   ; strip all prompts.

@@ -64,8 +64,8 @@ the current buffer between START and END.  CELL is the name of the cell. ")
        (body "\\([^\b\f]*\\)")		; Body of input or output region.
        )
   (defconst nb-cell-regexp 
-    (concat "\b\\(" name "> \\)"	; Prompt and name.
-	    body  "\b"   body "\b" ; input and output.
+    (concat "\b\\(" name ">\\)"		; Prompt and name.
+	    body  "\b"   body "\b"	; input and output.
 	    )
     "This is the regular expression which matches a i/o cell.
 The first character should be unusual, since this is sometimes
@@ -77,7 +77,7 @@ The fourth should match the output part of the cell.")
   (make-variable-buffer-local 'nb-cell-regexp)
 
   (defconst nb-empty-cell-format 
-    (concat "\b%s>   \b  (no output yet)\b\n")
+    (concat "\b%s>  \b  (no output yet)\b\n")
     "This is inserted as an initial empty cell.  It can use the name of the
 cell if it wishes (e.g. \"\bin(%s) =  \n< >\b\").  "
     )
@@ -444,9 +444,9 @@ is created on the following line."
   (nb-initialize-one-cell pos)		; Create cell data for this cell.
   (goto-char pos)			; Go back to the start.
   (looking-at nb-cell-regexp)		; Find the match data.
-  (goto-char (match-beginning 3)))	; Leave point at the start of the
-					; input data.
-
+  (goto-char (match-beginning 3))	; Leave point at the start of the input data.
+  ;; PENDING  -- this breaks something?
+  (indent-according-to-mode))		; Finally, leave this cell looking nice.
 
 
 

@@ -7,7 +7,7 @@
 
 ;;; DEBUGGING COMMANDS:
 
-(global-set-key [M-f5] 'nb-reload-modes) ; for debugging.
+(global-set-key [M-f4] 'nb-reload-modes) ; for debugging.
 
 (defun nb-reload-modes ()
   "Reload the notbook modes."

@@ -1,9 +1,11 @@
 # $Id$
 # Edit the directories to show where you want things installed:
 
-prefix = /usr/local
 infodir = /usr/share/info
-lispdir = /usr/share/emacs/site-lisp/notebook
+# You probably want this:
+# lispdir = /usr/share/emacs/site-lisp/notebook
+# But I use this:
+lispdir = $(HOME)/Emacs
 
 # This should change after an upload.
 VERSION = 1.3
@@ -19,10 +21,10 @@ DISTFILES = $(LISP) $(SAMPLES) COPYING INSTALL Makefile notebook.info notebook.t
 all: notebook.info
 
 install: notebook.info
-	install notebook.info $(infodir)
-	install-info $(infodir)/notebook.info  $(infodir)/dir
 	mkdirhier $(lispdir)
 	install $(LISP) $(lispdir)
+	install notebook.info $(infodir)
+	install-info $(infodir)/notebook.info  $(infodir)/dir
 
 version.texi: Makefile
 	@echo "@set VERSION $(VERSION)" >> version.texi

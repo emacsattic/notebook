@@ -34,7 +34,7 @@ ans =
    3.1676 + 4.2925i
    3.1676 - 4.2925i
 
-Here is some concatinated:
+Here is some concatenated:
 >> a = 1  
 a =
      1

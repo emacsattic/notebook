@@ -13,15 +13,16 @@ Some useful keys:
         C-c C-n -- create a new cell.
 	C-c C-d -- Delete this cell.
 
-2> uptime  
-  9:19pm  up 28 min,  0 users,  load average: 0.40, 0.18, 0.11
+2> uptime
+
+ 11:09pm  up  2:17,  0 users,  load average: 0.01, 0.12, 0.08
 
 3> sleep 3  
 
 4>  who
 
 This is some text.
-7> 
+7>
 /bin/ls  
 ChangeLog		 notebook-1.2.tgz	  #samp4.shell#
 COPYING			 notebook.html		  samp4.shell
@@ -67,13 +68,14 @@ matlab-notebook-mode.el  README			  samp.mu
 mupad-notebook-mode.el	 #samp4.sh#		  TODO
 notebook-1.2		 samp4.sh		  version.texi
 
-39>   
+11> 
+
+  
 
-5>   
+13>   
 
-6>   
-
-8>     (no output yet)
+15>    (no output yet) 17>  
+  16>    (no output yet) 14>   (no output yet)
 
 
 
