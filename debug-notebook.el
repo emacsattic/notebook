@@ -1,33 +1,65 @@
 ;; $Id$
-;;(eval-buffer)
+;;(progn (eval-buffer) (nb-reload-modes))
+;;(progn (setq debug-on-error t) (eval-buffer) (nb-reload-modes))
+;;(progn (setq edebug-all-defs t) (eval-buffer) (nb-reload-modes))
 
 
 ;; I just put some junk code here so that I can debug the notebook mode.
 ;; You should not install this stuff for real use.
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; DEBUGGING COMMANDS:
 
 (global-set-key [M-f4] 'nb-reload-modes) ; for debugging.
-(global-set-key [M-f3] 'nb-redo-octave-mode) ; for debugging.
-(global-set-key [M-f8] 'nb-find-cell-by-position) ; for debugging.
+(global-set-key [M-f3] 'debug-syntax-and-face) ; for debugging.
 (global-set-key [M-f7] 'nb-add-debug-buffer) ; for debugging.
+(global-set-key [M-f8] 'nb-find-cell-by-position) ; for debugging.
+(global-set-key [M-f9] 'open-message-buffer) ; for debugging.
+(global-set-key [M-f10] 'debug-syntax-and-face) ; for debugging.
+
+(require 'font-lock)
 
 (defun nb-reload-modes ()
   "Reload the notbook modes."
   (interactive)
-  (save-current-buffer
-    (save-excursion
-      (set-buffer "debug-notebook.el")
-      (eval-buffer)
-      (eval-buffer (find-file-noselect "notebook-mode.el"))
-      (eval-buffer (find-file-noselect "matlab-notebook-mode.el"))
-      (eval-buffer (find-file-noselect "mupad-notebook-mode.el"))
-      (eval-buffer (find-file-noselect "octave-notebook-mode.el"))
-      (message "Finished reloading all the notebook modes.")
-      )))
+  (let ((buf (current-buffer)))
+    (save-current-buffer
+      (save-excursion
+	(set-buffer "debug-notebook.el")
+	(eval-buffer)
+	(find-and-load "notebook-mode.el")
+	(find-and-load "matlab-notebook-mode.el")
+	(find-and-load "mupad-notebook-mode.el")
+	(find-and-load "octave-notebook-mode.el")
+	(find-and-load "debug-notebook.el")
+	(find-and-load "font-lock-debug.el")
+	(message "Finished reloading all the notebook modes.")
+	))
+    (switch-to-buffer buf)
+    ))
 
+
+
+(defun find-and-load (file)
+  "Find the file and eval it, if the file is already a buffer, use the buffer
+instead."
+  ;; (let (buf  (find-file-noselect file))
+  (save-current-buffer
+    (let ((buf  (find-file file)))
+      (message (format "loading file %s." buf))
+      (save-excursion
+	(eval-buffer buf)
+	))))
+
+
+(defun nb-debug-font-lock-stuff ()
+  "Use the debug font-lock stuff.."
+  (interactive)
+  (nb-turnoff-font-lock)
+  (nb-reload-modes)
+  (setq font-lock-fontify-region-function 'nbd-font-lock-default-fontify-region)
+  (notebook-mode)
+  )
 
 (defun nb-redo-matlab-mode ()
   "Reload this file and convert to notbook mode."
@@ -112,3 +144,52 @@
   (setq notebook-debug-output-buffer (get-buffer-create (concat name "-output")))
   )
 
+(setq message-log-max 500)
+
+(add-hook 'font-lock-mode-hook
+      '(lambda ()
+	 (message (format "Hello. I am running font lock in mode %s."
+			  major-mode))))
+
+
+
+(defun open-message-buffer ()
+  "open message."
+  (interactive)
+  (make-frame-command)
+  (switch-to-buffer "*Messages*")
+  )
+
+(defun print-font-debug-stuff ()
+  "print stuff."
+  (interactive)
+  (set (make-variable-buffer-local 'nbd-font-print) t)
+  )
+
+(defvar nbd-font-print nil "debug print stuff")
+
+(defun nbd-message (&rest args)
+  (if nbd-font-print
+      (message (apply 'format  args))))
+
+  
+
+
+(defun debug-syntax-and-face (s table)
+  "Print some stuff."
+  (interactive (list  "--current--" (syntax-table)))
+  (message (concat
+	    (string (char-syntax ?\"))
+	    (string (char-syntax ?$) )
+	    (string (char-syntax ?z))
+	    (string (char-syntax ?\())
+	    (string (char-syntax ?\)))
+	    "  "
+	    (if (equal table         (syntax-table)) ", current")
+	    (if (equal table        nb-syntax-table) ", nb")
+	    (if (equal table   sh-mode-syntax-table) ", shell")
+	    (if (equal table text-mode-syntax-table) ", text")
+	    (if (equal table font-lock-syntax-table) ", font")
+	    "  --> "
+	    s))
+  ) 

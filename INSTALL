@@ -2,7 +2,7 @@ Basic Installation
 ==================
 
 Either copy *.el to a directory in your emacs path (such
-as /usr/share/emacs/site-lisp), or edit the make file and 
+as /usr/share/emacs/site-lisp), or edit Makefile and 
 run make install.
 
 If you do it by hand, don't bother to copy over debug-notebook.el.

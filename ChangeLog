@@ -1,3 +1,24 @@
+2003-02-19  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* notebook-mode.el:
+	Several new text functions were added.  In particular, the file can now be
+	converted to TeX, HTML or plain text with the special characters removed.
+
+2003-02-11  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* notebook-mode.el:
+	This is the new version of notebook-mode.  It uses font lock highlighting for
+	the text region, as well as the input and output regions.  This version has
+	alot of debugging statements that will be cleaned out after some more testing.
+	The other modes (octave-notebook-mode, etc) don't match this yet.
+
+2002-10-29  Fred Gylys-Colwell  <fredgc@member.ams.org>
+
+	* ChangeLog, debug-notebook.el, notebook-mode.el, samp4.shell:
+	nb-next-cell and nb-create-cell now return the relevant cell.  Also,
+	nb-start-process resets some prompt variables so that the output is a little
+	cleaner.
+
 2002-10-28  Fred Gylys-Colwell  <fredgc@member.ams.org>
 
 	* notebook-mode.el (nb-start-process): Sets the terminal type to
