@@ -407,6 +407,8 @@ the start of the cell text.  The new cell is returned."
 	
 	;; Use the following so that the overlays can keep track of changes
 	;; in their text.
+	;;; PENDING -- check that prompt can change
+	;;; PENDING -- before adding this: (overlay-put prompt 'intangible t)
 	(overlay-put prompt 'modification-hooks 
 		     (nb-make-hook 'nb-modify-prompt cell))
 	(overlay-put prompt 'insert-in-front-hooks

@@ -1,11 +1,9 @@
 ;; $Id$
 ;; Set up a notebook mode for octave.
 
-
 (provide 'octave-notebook-mode)
 (require 'notebook-mode)
 (require 'tex-mode)
-
 
 (defvar octave-notebook-mode-map
   (let ((map (make-sparse-keymap)))
@@ -19,24 +17,24 @@
   "The key map for octave notebooks.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(define-derived-mode ocatave-notebook-mode tex-mode "Ocatave"
-  "Major mode for a Ocatave notebook.  It is a combination of TeX mode
+(define-derived-mode octave-notebook-mode tex-mode "Octave"
+  "Major mode for a Octave notebook.  It is a combination of TeX mode
 and Notebook mode.
 
 See documentation of `notebook-mode` for a description of a notebook,
 and cells.
 
 Special commands:
-\\{ocatave-notebook-mode-map}
+\\{octave-notebook-mode-map}
 
 See documentation for tex-mode for other commands.
 
-In addition to `ocatave-notebook-hook', and whatever hooks tex-mode runs, 
+In addition to `octave-notebook-hook', and whatever hooks tex-mode runs, 
 `common-notebook-mode-hook' is also run.
 
 "
 
-  ;;(scratch "Running ocatave notebook mode.\n")
+  ;;(scratch "Running octave notebook mode.\n")
   (nb-octave-regexpressions)
   (setq nb-adjust-input-string octave-notebook-adjust-input-string)
   (setq nb-adjust-output-string octave-notebook-adjust-output-string)
@@ -197,6 +195,7 @@ return nil."
 		(start-process "octave"	; name of process
 			       buff
 			       "octave"))	; Program name.
+	  (process-kill-without-query nb-process)
 	  (set-process-filter nb-process 'nb-filter)
 	  (process-send-string nb-process "echo off\n")
 	  (set-buffer buff)
