@@ -17,7 +17,7 @@
 This is edition $Revision$ of the Notebook Mode Manual for Notebook
 Mode version @value{VERSION}.
 
-Copyright @copyright{}  2002 Fred Gylys-Colwell.
+Copyright @copyright{}  2002, 2005 Fred Gylys-Colwell.
 @end ifinfo
 
 @contents

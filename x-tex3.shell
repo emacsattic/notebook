@@ -9,26 +9,36 @@ Sample Fake Notebook \\
 This is just to see how notebook-to-tex works.  Do try to run this.
 
 
->>dog=$PATH + { one, two }    --no output yet-- 
+>>dog=$PATH + { one, two }  
+bash: +: command not found
+
 >>This is two lines of
-input.   --no output yet-- 
+input. 
+bash: This: command not found
+bash: input.: command not found
+
 >>This is two lines of
 input. With a \TeX. 
-and two lines of output.
-output has a \TeX too.
+bash: This: command not found
+bash: input.: command not found
 
 This is right after those two.
 
 Here is a short prompt:
->dog=$PATH + { one, two }    --no output yet-- 
+>dog=$PATH + { one, two }  
+bash: +: command not found
+
 And another.
 >This is two lines of
-input.   --no output yet-- 
+input. 
+bash: This: command not found
+bash: input.: command not found
+
 And another
 >This is two lines of
 input. With a \TeX. 
-and two lines of output.
-output has a \TeX too.
+bash: This: command not found
+bash: input.: command not found
 
 That was the end of the stuff.
 

@@ -1,30 +1,32 @@
 
 >>z=$HOME	  
 >>ls  
-auto			 notebook-1.2.tgz	  samp7.fs
-ChangeLog		 notebook-1.3.tgz	  samp7.tex
-color.shell		 notebook.html		  samp7.txt
-COPYING			 notebook-mode.el	  samp8.octave
-CVS			 notebook.texi		  samp.mu
-debug-notebook.el	 NOTEs			  TODO
-font-lock-debug.el	 octave-notebook-mode.el  version.texi
-INSTALL			 old-notebook-mode.el	  x-html.shell
-junk.m			 README			  x-plain2.shell
-Makefile		 samp4.sh		  x-plain.shell
+ChangeLog		 notebook-2.0		  samp8.octave
+color.shell		 notebook-2.0.tgz	  sample 9.octave
+COPYING			 notebook.html		  samp.mu
+CVS			 notebook.info		  TODO
+debug-notebook.el	 notebook-mode.el	  version.texi
+font-lock-20.el		 notebook.texi		  x-html.html
+font-lock-debug.el	 octave-notebook-mode.el  x-html.shell
+INSTALL			 old			  x-plain2.shell
+junk.m			 old-notebook-mode.el	  x-plain.shell
+Makefile		 README			  x tex2.shell
 matlab-notebook-mode.el  samp4.shell		  x-tex2.shell
-mupad-notebook-mode.el	 samp5-b.matlab		  x-tex.shell
-notebook-1.0.tgz	 samp5.matlab		  z.shell
-notebook-1.1.tgz	 samp6.shell
+mupad-notebook-mode.el	 samp5-b.matlab		  x-tex3.shell
+notebook-1.0.tgz	 samp5.matlab		  x-tex.shell
+notebook-1.1.tgz	 samp5.tex		  z.shell
+notebook-1.2.tgz	 samp6.shell		  z.txt
+notebook-1.3.tgz	 samp7.fs
 
 This is a sample shell script. With text mode.
 
 
 >>date  
-Wed Feb 19 21:38:12 PST 2003
+Sat Jan 15 10:45:00 PST 2005
 
 
 >>time sleep 20  
-real	0m20.008s
+real	0m20.010s
 user	0m0.000s
 sys	0m0.000s
 
