@@ -53,7 +53,15 @@ notebook-$(VERSION).tgz: $(DISTFILES)
 
 # I use this to release a new version.  
 # It should only be used by the maintainer -- Fred GC.
-sourceforge: notebook-$(VERSION).tgz
+install-web: notebook.html
 	scp notebook.html fredgc@shell.sourceforge.net:/home/groups/n/no/notebook/htdocs/index.html
+	cp notebook.html $(HOME)/public_html/sourceforge/notebook/index.html
+
+
+# I use this to release a new version.  
+# It should only be used by the maintainer -- Fred GC.
+install-version: notebook-$(VERSION).tgz
 	ncftpput -p  fredgc@users.sourceforge.net  upload.sourceforge.net /incoming notebook-$(VERSION).tgz
-	cp notebook.html $(HOME)/public_html/ktb/notebook.html
+#	cp notebook.html $(HOME)/public_html/ktb/notebook.html
+
+
