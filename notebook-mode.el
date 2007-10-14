@@ -629,10 +629,12 @@ is created on the following line."
 (defun nb-turnoff-font-lock ()
   "Turn off the special font-lock handling for notebook."
   (interactive)
-  (save-excursion
-    (font-lock-unfontify-region (point-min) (point-max))
-    (setq font-lock-fontify-region-function original-fontify)
-    (font-lock-fontify-region (point-min) (point-max))
+  (if (boundp'original-fontify) 
+      (save-excursion
+	(font-lock-unfontify-region (point-min) (point-max))
+	(setq font-lock-fontify-region-function original-fontify)
+	(font-lock-fontify-region (point-min) (point-max))
+	)
     )
   )
 
@@ -775,7 +777,8 @@ Most of this is taken from `font-lock-default-fontify-region'.
 (defconst nb-font-lock-variables
   '( major-mode
      font-lock-set-defaults
-     font-lock-cache-state font-lock-cache-position
+     ;; XXX -- not used in current emacs: font-lock-cache-state
+     ;; XXX font-lock-cache-position
      font-lock-fontified
      font-lock-multiline font-lock-keywords font-lock-keywords-only
      font-lock-keywords-case-fold-search font-lock-syntax-table

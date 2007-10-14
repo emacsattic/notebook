@@ -16,12 +16,12 @@ Some useful keys:
 	C-c C-d -- Delete this cell.
 
 >>date  
-Sat Jan 15 10:38:30 PST 2005
+Sat Apr 22 10:31:01 PDT 2006
 
 
 >> uptime
 
- 10:38:30  up 21 min,  0 users,  load average: 0.11, 0.17, 0.18
+ 10:31:03 up 58 min,  1 user,  load average: 1.02, 1.07, 1.00
 
 >> sleep 3  
 >> uname -a

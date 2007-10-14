@@ -8,10 +8,10 @@ Scrachpad Notebook  \\
 This needs the scratchpad program, which is not ready for prime time.
 (or even beta testing)
 
->>x = 1 in    
+>>x = 1 in    0.0254  m
 >>y = 1 ft    0.3048  m
 >>x * y  0.007742  m^2
->>1 dog + 1 cat  ERROR: Encountered "dog" at line 4, column 40.
+>>1 dog + 1 cat  ERROR: Encountered "dog" at line 13, column 40.
 Was expecting one of:
     "\bCELL_END" ...
     "(" ...
@@ -29,7 +29,7 @@ Was expecting one of:
 >>   dog + cat
 two three
 
-  ERROR: Encountered "two" at line 19, column 1.
+  ERROR: Encountered "two" at line 15, column 1.
 Was expecting one of:
     "\bCELL_END" ...
     "+" ...

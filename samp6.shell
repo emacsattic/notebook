@@ -1,5 +1,5 @@
-1> echo -n 1 ddd  
-1 ddd
+1> echo -n 1 $HOME  
+1 /home/fredgc
 2> echo -n 2  
 2
 3> echo -n 3  
