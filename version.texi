@@ -1,2 +1,2 @@
-@set UPDATED 15 January 2005
+@set UPDATED 14 October 2007
 @set VERSION 2.1
